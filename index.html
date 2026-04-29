@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="theme-color" content="#080c14"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="TradeSense"/>
+<meta name="description" content="Personal Intraday Trading AI Bot"/>
+<title>TradeSense AI</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap"/>
+<style>
+  :root {
+    --bg: #080c14;
+    --surface: #0d1420;
+    --surface2: #111827;
+    --accent: #00d4aa;
+    --accent2: #00a3cc;
+    --accent-dim: rgba(0,212,170,0.15);
+    --text: #e2e8f0;
+    --text-muted: #4a5568;
+    --text-dim: #2d3748;
+    --border: rgba(255,255,255,0.07);
+    --border-accent: rgba(0,212,170,0.25);
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --safe: #00d4aa;
+    --safe-bar: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #app {
+    display: flex; flex-direction: column;
+    height: 100dvh;
+    position: relative;
+  }
+
+  /* Ambient glow */
+  .ambient {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse 80% 35% at 50% -5%, rgba(0,212,170,0.08) 0%, transparent 65%);
+  }
+
+  /* Header */
+  .header {
+    position: relative; z-index: 20;
+    padding: 14px 16px 10px;
+    padding-top: calc(14px + env(safe-area-inset-top, 0px));
+    background: rgba(8,12,20,0.97);
+    border-bottom: 1px solid var(--border-accent);
+    display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(20px);
+    flex-shrink: 0;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .logo {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px; font-weight: 800; color: var(--bg);
+    flex-shrink: 0;
+  }
+  .brand-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 800;
+    color: var(--accent); letter-spacing: 0.06em;
+  }
+  .brand-sub { font-size: 9px; color: var(--text-muted); letter-spacing: 0.12em; margin-top: 1px; }
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 10px; border-radius: 20px;
+    background: rgba(0,212,170,0.08);
+    border: 1px solid rgba(0,212,170,0.2);
+  }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 8px var(--accent);
+    animation: blink 2s ease-in-out infinite;
+  }
+  .live-text { font-size: 10px; color: var(--accent); letter-spacing: 0.1em; }
+
+  /* Tab bar */
+  .tabs {
+    display: flex; background: var(--surface); border-bottom: 1px solid var(--border);
+    position: relative; z-index: 15; flex-shrink: 0;
+  }
+  .tab {
+    flex: 1; padding: 11px 8px; border: none;
+    background: transparent; color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; cursor: pointer; letter-spacing: 0.04em;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .kb-count {
+    background: var(--accent); color: var(--bg);
+    font-size: 9px; font-weight: 700;
+    padding: 1px 5px; border-radius: 10px; min-width: 16px; text-align: center;
+  }
+
+  /* Chat area */
+  #chat-tab { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .messages {
+    flex: 1; overflow-y: auto; padding: 14px 14px 8px;
+    display: flex; flex-direction: column; gap: 12px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .msg-row { display: flex; gap: 8px; align-items: flex-end; }
+  .msg-row.user { flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: var(--bg);
+  }
+
+  .msg-bubble {
+    max-width: 82%; padding: 11px 13px;
+    font-size: 12.5px; line-height: 1.65; white-space: pre-wrap; word-break: break-word;
+    border-radius: 16px;
+  }
+  .msg-row.bot .msg-bubble {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+  .msg-row.user .msg-bubble {
+    background: linear-gradient(135deg, rgba(0,212,170,0.18), rgba(0,163,204,0.18));
+    border: 1px solid rgba(0,212,170,0.25);
+    border-bottom-right-radius: 4px;
+    color: var(--text);
+  }
+
+  /* Call card styling within bubbles */
+  .call-buy { color: #00d4aa; font-weight: 700; }
+  .call-sell { color: #ef4444; font-weight: 700; }
+  .call-wait { color: #f59e0b; font-weight: 700; }
+
+  /* Typing indicator */
+  .typing-bubble {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 16px; border-bottom-left-radius: 4px;
+    padding: 12px 16px; display: flex; gap: 5px; align-items: center;
+  }
+  .typing-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    animation: typing 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  /* Quick chips */
+  .chips {
+    padding: 6px 14px 6px; display: flex; gap: 7px; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; flex-shrink: 0;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    white-space: nowrap; padding: 7px 12px; border-radius: 20px;
+    border: 1px solid rgba(0,212,170,0.2);
+    background: rgba(0,212,170,0.05); color: #4a9a8a;
+    font-size: 10.5px; cursor: pointer; font-family: inherit;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .chip:active { background: rgba(0,212,170,0.15); transform: scale(0.97); }
+
+  /* Input area */
+  .input-area {
+    padding: 10px 12px;
+    padding-bottom: calc(10px + var(--safe-bar));
+    border-top: 1px solid var(--border);
+    background: rgba(8,12,20,0.97);
+    display: flex; gap: 8px; align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .input-wrap { flex: 1; position: relative; }
+  textarea {
+    width: 100%; padding: 11px 14px;
+    background: var(--surface2);
+    border: 1px solid rgba(0,212,170,0.2);
+    border-radius: 14px; color: var(--text);
+    font-size: 13px; font-family: 'Space Mono', monospace;
+    resize: none; outline: none; line-height: 1.5;
+    max-height: 100px; overflow-y: auto;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: rgba(0,212,170,0.5); }
+  textarea::placeholder { color: var(--text-dim); }
+
+  .send-btn {
+    width: 44px; height: 44px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: var(--bg); font-size: 18px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.15s;
+  }
+  .send-btn:disabled { background: var(--surface2); color: var(--text-dim); }
+  .send-btn:active:not(:disabled) { transform: scale(0.93); }
+
+  /* Knowledge base */
+  #kb-tab {
+    flex: 1; overflow-y: auto; padding: 14px;
+    padding-bottom: calc(14px + var(--safe-bar));
+    -webkit-overflow-scrolling: touch;
+  }
+  .kb-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+  }
+  .kb-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
+  .kb-sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+  .add-btn {
+    padding: 9px 14px; border-radius: 10px; border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: var(--bg); font-weight: 700; font-size: 11px;
+    cursor: pointer; font-family: inherit; flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .add-btn:active { transform: scale(0.96); }
+
+  /* Add form */
+  .add-form {
+    background: var(--surface2); border: 1px solid var(--border-accent);
+    border-radius: 14px; padding: 14px; margin-bottom: 14px;
+  }
+  .form-title { font-size: 11px; color: var(--accent); font-weight: 700; margin-bottom: 12px; letter-spacing: 0.06em; }
+  .form-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  select, .text-input {
+    padding: 10px 12px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-size: 12px; font-family: 'Space Mono', monospace;
+    outline: none; transition: border-color 0.2s;
+  }
+  select:focus, .text-input:focus { border-color: rgba(0,212,170,0.4); }
+  select { cursor: pointer; }
+  select option { background: var(--surface); }
+  .text-input { flex: 1; }
+  .textarea-kb {
+    width: 100%; padding: 10px 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-size: 12px; font-family: 'Space Mono', monospace;
+    resize: vertical; outline: none; line-height: 1.6;
+    min-height: 80px; transition: border-color 0.2s;
+  }
+  .textarea-kb:focus { border-color: rgba(0,212,170,0.4); }
+  .form-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .save-btn {
+    padding: 10px 18px; border-radius: 10px; border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: var(--bg); font-weight: 700; font-size: 11px;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .save-btn:active { transform: scale(0.96); }
+  .cancel-btn {
+    padding: 10px 18px; border-radius: 10px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text-muted); font-size: 11px;
+    cursor: pointer; font-family: inherit;
+  }
+
+  /* KB entries */
+  .kb-empty {
+    text-align: center; padding: 48px 20px;
+    border: 1px dashed rgba(255,255,255,0.08); border-radius: 14px;
+  }
+  .kb-empty-icon { font-size: 36px; margin-bottom: 10px; }
+  .kb-empty-text { font-size: 12px; color: var(--text-muted); }
+  .kb-empty-sub { font-size: 10px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
+
+  .kb-entry {
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+    background: rgba(255,255,255,0.02); position: relative;
+    transition: all 0.2s;
+  }
+  .kb-entry:active { opacity: 0.85; }
+  .kb-entry-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .kb-entry-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .kb-tag {
+    font-size: 9px; padding: 3px 7px; border-radius: 5px;
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .kb-entry-title { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.3; }
+  .kb-entry-body { font-size: 11px; color: var(--text-muted); margin-top: 7px; line-height: 1.6; }
+  .delete-btn {
+    background: transparent; border: none; color: var(--text-dim);
+    font-size: 18px; cursor: pointer; padding: 2px 4px; flex-shrink: 0;
+    line-height: 1;
+  }
+  .delete-btn:active { color: var(--danger); }
+
+  /* Install banner */
+  .install-banner {
+    margin: 0 14px 10px; padding: 12px 14px;
+    background: linear-gradient(135deg, rgba(0,212,170,0.12), rgba(0,163,204,0.08));
+    border: 1px solid rgba(0,212,170,0.25); border-radius: 12px;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .install-text { font-size: 11px; line-height: 1.5; color: var(--text); }
+  .install-text strong { color: var(--accent); }
+  .install-btn {
+    padding: 8px 14px; border-radius: 8px; border: none;
+    background: var(--accent); color: var(--bg);
+    font-size: 11px; font-weight: 700; cursor: pointer;
+    font-family: inherit; flex-shrink: 0; white-space: nowrap;
+  }
+  .close-banner { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+
+  /* Animations */
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @keyframes typing { 0%,100%{opacity:0.3;transform:scale(0.7)} 50%{opacity:1;transform:scale(1)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .msg-row { animation: fadeUp 0.25s ease; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,212,170,0.2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="ambient"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">TS</div>
+      <div>
+        <div class="brand-name">TRADESENSE AI</div>
+        <div class="brand-sub">INTRADAY BOT</div>
+      </div>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      <span class="live-text">LIVE</span>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" id="tab-chat" onclick="switchTab('chat')">
+      📡 CONSOLE
+    </button>
+    <button class="tab" id="tab-kb" onclick="switchTab('kb')">
+      🧠 KNOWLEDGE <span class="kb-count" id="kb-count">0</span>
+    </button>
+  </div>
+
+  <!-- CHAT TAB -->
+  <div id="chat-tab">
+    <!-- Install banner -->
+    <div class="install-banner" id="install-banner">
+      <div class="install-text"><strong>📲 Install as App</strong><br/>Add to home screen for the best experience</div>
+      <button class="install-btn" id="install-btn" onclick="installApp()">Install</button>
+      <button class="close-banner" onclick="document.getElementById('install-banner').classList.add('hidden')">×</button>
+    </div>
+
+    <div class="messages" id="messages">
+      <!-- Welcome message injected by JS -->
+    </div>
+
+    <!-- Quick chips -->
+    <div class="chips" id="chips">
+      <button class="chip" onclick="useChip(this)">NIFTY RSI 72, MACD crossover</button>
+      <button class="chip" onclick="useChip(this)">Banknifty below 200 EMA</button>
+      <button class="chip" onclick="useChip(this)">Sideways market strategy?</button>
+      <button class="chip" onclick="useChip(this)">Volume spike 10:30 AM</button>
+    </div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea id="msg-input" rows="1" placeholder="Paste live market data, price, indicators…"
+          oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+      </div>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>↑</button>
+    </div>
+  </div>
+
+  <!-- KNOWLEDGE BASE TAB -->
+  <div id="kb-tab" class="hidden">
+    <div class="kb-header">
+      <div>
+        <div class="kb-title">Knowledge Base</div>
+        <div class="kb-sub">Feed strategies, indicators & research to your bot</div>
+      </div>
+      <button class="add-btn" onclick="toggleAddForm()">+ Add</button>
+    </div>
+
+    <!-- Add form -->
+    <div class="add-form hidden" id="add-form">
+      <div class="form-title">NEW KNOWLEDGE ENTRY</div>
+      <div class="form-row">
+        <select id="entry-type">
+          <option value="strategy">📊 Strategy</option>
+          <option value="indicator">📈 Indicator</option>
+          <option value="research">🔬 Research</option>
+          <option value="video">🎥 Video Notes</option>
+          <option value="rule">📋 Rule</option>
+        </select>
+        <input type="text" class="text-input" id="entry-title" placeholder="Title e.g. ORB Strategy"/>
+      </div>
+      <textarea class="textarea-kb" id="entry-content" rows="4"
+        placeholder="Describe strategy rules, entry/exit conditions, best market conditions…"></textarea>
+      <div class="form-actions">
+        <button class="save-btn" onclick="saveEntry()">Save Entry</button>
+        <button class="cancel-btn" onclick="toggleAddForm()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Entries list -->
+    <div id="kb-list"></div>
+  </div>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+let knowledgeBase = JSON.parse(localStorage.getItem('ts_kb') || '[]');
+let chatHistory = [];
+let isLoading = false;
+let deferredPrompt = null;
+
+const TYPE_COLORS = {
+  strategy: '#00d4aa', indicator: '#f59e0b',
+  research: '#6366f1', video: '#ef4444', rule: '#ec4899'
+};
+const TYPE_ICONS = {
+  strategy:'📊', indicator:'📈', research:'🔬', video:'🎥', rule:'📋'
+};
+
+const SYSTEM_PROMPT = `You are an elite intraday trading analyst and personal trading bot. Your goal: help the user make safe, profitable intraday trades.
+
+You use the Knowledge Base (strategies, indicators, research) provided below for every analysis.
+
+When user shares market data (price, volume, indicators, chart patterns, time), respond with:
+
+🎯 CALL: [BUY / SELL / WAIT / EXIT]
+📌 Symbol: [if mentioned]
+💰 Entry Zone: [price range]
+🛑 Stop Loss: [price]
+🎯 Target 1: [price]
+🎯 Target 2: [price]
+📊 R:R Ratio: [e.g. 1:2.5]
+🔒 Confidence: [%]
+📝 Reasoning: [use knowledge base strategies]
+⚠️ Risk Note: [warnings / caveats]
+
+Rules:
+- Capital preservation > profits. If unclear, say WAIT.
+- Never suggest trade with R:R < 1:1.5
+- Consider time of day (avoid 9:15-9:30 opening chaos, 3:00+ PM danger zone)
+- Always match strategy from knowledge base to current conditions`;
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  addBotMessage(`👋 Welcome to TradeSense AI!\n\nTo get started:\n1. Go to 🧠 KNOWLEDGE tab — add your strategies & research\n2. Come back here — paste live market data\n3. Get your trading call with entry, SL & targets\n\n📌 Tip: The more you train me, the smarter my calls become.`);
+  renderKB();
+  updateKBCount();
+  msgInput.addEventListener('input', () => {
+    sendBtn.disabled = !msgInput.value.trim() || isLoading;
+  });
+});
+
+// PWA install
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').classList.remove('hidden');
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').classList.add('hidden');
+});
+
+// Hide install banner if already standalone
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  document.getElementById('install-banner').classList.add('hidden');
+}
+
+async function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (outcome === 'accepted') {
+      document.getElementById('install-banner').classList.add('hidden');
+    }
+  } else {
+    // Fallback instructions
+    addBotMessage('📲 To install:\n1. Tap the Chrome menu (⋮ three dots, top right)\n2. Tap "Add to Home screen"\n3. Tap "Add"\n\nThe app will appear on your home screen like a native app!');
+    document.getElementById('install-banner').classList.add('hidden');
+  }
+}
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+const msgInput = document.getElementById('msg-input');
+const sendBtn = document.getElementById('send-btn');
+const messagesEl = document.getElementById('messages');
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  sendBtn.disabled = !el.value.trim() || isLoading;
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function useChip(btn) { msgInput.value = btn.textContent; autoResize(msgInput); msgInput.focus(); }
+
+function addBotMessage(text) {
+  const row = document.createElement('div');
+  row.className = 'msg-row bot';
+  row.innerHTML = `
+    <div class="msg-avatar">TS</div>
+    <div class="msg-bubble">${formatMsg(text)}</div>`;
+  messagesEl.appendChild(row);
+  scrollBottom();
+}
+
+function addUserMessage(text) {
+  const row = document.createElement('div');
+  row.className = 'msg-row user';
+  row.innerHTML = `<div class="msg-bubble">${escHtml(text)}</div>`;
+  messagesEl.appendChild(row);
+  scrollBottom();
+}
+
+function showTyping() {
+  const el = document.createElement('div');
+  el.className = 'msg-row bot'; el.id = 'typing';
+  el.innerHTML = `<div class="msg-avatar">TS</div>
+    <div class="typing-bubble">
+      <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+    </div>`;
+  messagesEl.appendChild(el);
+  scrollBottom();
+}
+function hideTyping() { document.getElementById('typing')?.remove(); }
+
+function scrollBottom() {
+  setTimeout(() => messagesEl.scrollTop = messagesEl.scrollHeight, 60);
+}
+
+function formatMsg(text) {
+  return escHtml(text)
+    .replace(/🎯 CALL: (BUY)/g, '🎯 CALL: <span class="call-buy">$1</span>')
+    .replace(/🎯 CALL: (SELL)/g, '🎯 CALL: <span class="call-sell">$1</span>')
+    .replace(/🎯 CALL: (WAIT|EXIT)/g, '🎯 CALL: <span class="call-wait">$1</span>');
+}
+
+function escHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildKBContext() {
+  if (!knowledgeBase.length) return 'No knowledge base entries yet.';
+  return knowledgeBase.map((e,i) =>
+    `[${i+1}] ${e.type.toUpperCase()} — ${e.title}:\n${e.content}`
+  ).join('\n\n');
+}
+
+async function sendMessage() {
+  const text = msgInput.value.trim();
+  if (!text || isLoading) return;
+
+  addUserMessage(text);
+  chatHistory.push({ role: 'user', content: text });
+  msgInput.value = ''; msgInput.style.height = 'auto';
+  sendBtn.disabled = true; isLoading = true;
+  showTyping();
+
+  try {
+    const systemFull = SYSTEM_PROMPT + '\n\n--- KNOWLEDGE BASE ---\n' + buildKBContext() + '\n--- END ---';
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemFull,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'Sorry, could not process. Try again.';
+    chatHistory.push({ role: 'assistant', content: reply });
+    hideTyping();
+    addBotMessage(reply);
+  } catch(err) {
+    hideTyping();
+    addBotMessage('⚠️ Network error. Check connection and try again.');
+  }
+
+  isLoading = false;
+  sendBtn.disabled = !msgInput.value.trim();
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  const isChat = tab === 'chat';
+  document.getElementById('chat-tab').classList.toggle('hidden', !isChat);
+  document.getElementById('kb-tab').classList.toggle('hidden', isChat);
+  document.getElementById('tab-chat').classList.toggle('active', isChat);
+  document.getElementById('tab-kb').classList.toggle('active', !isChat);
+  // fix flex layout for chat
+  document.getElementById('chat-tab').style.display = isChat ? 'flex' : 'none';
+  document.getElementById('kb-tab').style.display = isChat ? 'none' : 'block';
+}
+
+// ─── Knowledge Base ───────────────────────────────────────────────────────────
+let addFormOpen = false;
+
+function toggleAddForm() {
+  addFormOpen = !addFormOpen;
+  document.getElementById('add-form').classList.toggle('hidden', !addFormOpen);
+  if (addFormOpen) document.getElementById('entry-title').focus();
+}
+
+function saveEntry() {
+  const title = document.getElementById('entry-title').value.trim();
+  const content = document.getElementById('entry-content').value.trim();
+  const type = document.getElementById('entry-type').value;
+  if (!title || !content) return;
+
+  const entry = { id: Date.now(), type, title, content };
+  knowledgeBase.push(entry);
+  localStorage.setItem('ts_kb', JSON.stringify(knowledgeBase));
+
+  document.getElementById('entry-title').value = '';
+  document.getElementById('entry-content').value = '';
+  document.getElementById('entry-type').value = 'strategy';
+  toggleAddForm();
+  renderKB();
+  updateKBCount();
+}
+
+function deleteEntry(id) {
+  if (!confirm('Delete this entry?')) return;
+  knowledgeBase = knowledgeBase.filter(e => e.id !== id);
+  localStorage.setItem('ts_kb', JSON.stringify(knowledgeBase));
+  renderKB();
+  updateKBCount();
+}
+
+function updateKBCount() {
+  document.getElementById('kb-count').textContent = knowledgeBase.length;
+}
+
+function renderKB() {
+  const list = document.getElementById('kb-list');
+  if (!knowledgeBase.length) {
+    list.innerHTML = `
+      <div class="kb-empty">
+        <div class="kb-empty-icon">🧠</div>
+        <div class="kb-empty-text">No entries yet</div>
+        <div class="kb-empty-sub">Add your trading strategies, indicator rules,<br/>YouTube learnings & research notes.</div>
+      </div>`;
+    return;
+  }
+  list.innerHTML = knowledgeBase.map(e => `
+    <div class="kb-entry" style="border-left: 3px solid ${TYPE_COLORS[e.type]}; border: 1px solid ${TYPE_COLORS[e.type]}22; border-left: 3px solid ${TYPE_COLORS[e.type]};">
+      <div class="kb-entry-header">
+        <div class="kb-entry-meta">
+          <span class="kb-tag" style="background:${TYPE_COLORS[e.type]}22;color:${TYPE_COLORS[e.type]}">${TYPE_ICONS[e.type]} ${e.type.toUpperCase()}</span>
+          <span class="kb-entry-title">${escHtml(e.title)}</span>
+        </div>
+        <button class="delete-btn" onclick="deleteEntry(${e.id})">×</button>
+      </div>
+      <div class="kb-entry-body">${escHtml(e.content.length > 180 ? e.content.slice(0,180)+'…' : e.content)}</div>
+    </div>`).join('');
+}
+
+// Initial tab setup
+document.getElementById('chat-tab').style.display = 'flex';
+document.getElementById('kb-tab').style.display = 'none';
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+
+</body>
+</html>
