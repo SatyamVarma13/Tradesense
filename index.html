@@ -2,376 +2,248 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="theme-color" content="#030507"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="TradeSense"/>
-<title>TradeSense AI v3</title>
+<title>TradeSense AI</title>
 <link rel="manifest" href="manifest.json"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;700;900&display=swap"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --bg: #030507;
-  --bg2: #080d12;
-  --bg3: #0d1520;
-  --surface: #111c2a;
-  --surface2: #162234;
-  --accent: #00f5c4;
-  --accent2: #0094ff;
-  --accent3: #ff6b35;
-  --gold: #ffd700;
-  --text: #d4e8ff;
-  --text2: #7a9bb5;
-  --text3: #3a5570;
-  --border: rgba(0,245,196,0.1);
-  --border2: rgba(0,148,255,0.15);
-  --danger: #ff4466;
-  --safe-b: env(safe-area-inset-bottom,0px);
-  --safe-t: env(safe-area-inset-top,0px);
-}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+html,body{height:100%;overflow:hidden;background:#030507;color:#d4e8ff;font-family:'JetBrains Mono',monospace;-webkit-font-smoothing:antialiased}
+#app{display:flex;flex-direction:column;height:100dvh}
 
-/* Scanline overlay */
-body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:1000}
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;padding-top:calc(12px + env(safe-area-inset-top,0px));background:#030507;border-bottom:1px solid rgba(0,245,196,0.12);flex-shrink:0}
+.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#00f5c4,#0094ff);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:11px;font-weight:900;color:#030507;flex-shrink:0}
+.brand{margin-left:9px}
+.b1{font-family:'Orbitron',monospace;font-size:13px;font-weight:900;color:#00f5c4;letter-spacing:.06em}
+.b2{font-size:9px;color:#3a7a6a;letter-spacing:.08em;margin-top:1px}
+.live{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;background:rgba(0,245,196,0.07);border:1px solid rgba(0,245,196,0.18)}
+.ldot{width:7px;height:7px;border-radius:50%;background:#00f5c4;box-shadow:0 0 7px #00f5c4;animation:blink 2s infinite}
+.ltxt{font-size:9px;color:#00f5c4;letter-spacing:.1em}
 
-#app{display:flex;flex-direction:column;height:100dvh;position:relative}
+/* TABS */
+.tabs{display:flex;background:#080d12;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0}
+.t{flex:1;padding:10px 4px;border:none;background:transparent;color:#2d5060;font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.04em}
+.t.on{color:#00f5c4;border-bottom-color:#00f5c4}
+.bdg{background:#00f5c4;color:#030507;font-size:8px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:3px}
 
-/* Ambient */
-.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse 60% 30% at 20% 0%,rgba(0,245,196,0.06) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 25% at 80% 100%,rgba(0,148,255,0.05) 0%,transparent 60%)}
+/* CHAT PANEL */
+#pChat{display:flex;flex-direction:column;flex:1;min-height:0}
+.msgs{flex:1;overflow-y:auto;padding:12px 12px 6px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
 
-/* ── Header ── */
-.header{position:relative;z-index:20;padding:12px 16px;padding-top:calc(12px + var(--safe-t));
-  background:rgba(3,5,7,0.95);border-bottom:1px solid var(--border);
-  backdrop-filter:blur(20px);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
-.header-left{display:flex;align-items:center;gap:10px}
-.logo{width:36px;height:36px;border-radius:10px;position:relative;flex-shrink:0;
-  background:linear-gradient(135deg,#00f5c4,#0094ff);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Orbitron',monospace;font-size:12px;font-weight:900;color:#030507}
-.logo::after{content:'';position:absolute;inset:-1px;border-radius:11px;
-  background:linear-gradient(135deg,#00f5c4,#0094ff);z-index:-1;filter:blur(6px);opacity:0.5}
-.brand{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:0.08em}
-.brand-v{font-size:9px;color:var(--accent2);letter-spacing:0.05em;margin-top:2px}
-.status-row{display:flex;align-items:center;gap:8px}
-.status-pill{display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:20px;
-  background:rgba(0,245,196,0.07);border:1px solid rgba(0,245,196,0.2)}
-.pulse{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2s infinite}
-.status-text{font-size:9px;color:var(--accent);letter-spacing:0.12em}
+.row{display:flex;gap:8px;align-items:flex-end;animation:up .2s ease}
+.row.me{flex-direction:row-reverse}
+.av{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#00f5c4,#0094ff);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:9px;font-weight:900;color:#030507;flex-shrink:0}
+.bub{max-width:84%;padding:10px 13px;font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-word;border-radius:14px}
+.row.bot .bub{background:#111c2a;border:1px solid rgba(0,245,196,0.1);border-bottom-left-radius:3px}
+.row.me .bub{background:linear-gradient(135deg,rgba(0,245,196,0.14),rgba(0,148,255,0.11));border:1px solid rgba(0,245,196,0.2);border-bottom-right-radius:3px}
+.cBUY{color:#00f5c4;font-weight:700}
+.cSELL{color:#ff4466;font-weight:700}
+.cWAIT{color:#ffd700;font-weight:700}
+.cimg{max-width:200px;border-radius:8px;border:1px solid rgba(0,245,196,0.15);margin-top:6px;display:block}
 
-/* ── Tabs ── */
-.tabs{display:flex;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);
-  position:relative;z-index:15;flex-shrink:0;overflow-x:auto}
-.tabs::-webkit-scrollbar{display:none}
-.tab{flex:1;min-width:70px;padding:10px 6px;border:none;background:transparent;color:var(--text3);
-  font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;letter-spacing:0.05em;
-  border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;
-  display:flex;align-items:center;justify-content:center;gap:4px}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.badge{background:var(--accent);color:var(--bg);font-size:8px;font-weight:700;
-  padding:1px 5px;border-radius:8px;min-width:14px;text-align:center}
+/* TYPING */
+.trow{display:flex;gap:8px;align-items:flex-end}
+.tbub{background:#111c2a;border:1px solid rgba(0,245,196,0.1);border-radius:14px;border-bottom-left-radius:3px;padding:12px 15px;display:flex;gap:5px}
+.td{width:6px;height:6px;border-radius:50%;background:#00f5c4;animation:tdot 1.2s infinite}
+.td:nth-child(2){animation-delay:.2s}
+.td:nth-child(3){animation-delay:.4s}
 
-/* ── Chat ── */
-#tab-chat{display:flex;flex-direction:column;flex:1;min-height:0}
-.messages{flex:1;overflow-y:auto;padding:14px 12px 8px;display:flex;flex-direction:column;gap:10px;
-  -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+/* TOOLBAR */
+.tbar{display:flex;gap:6px;padding:7px 12px 4px;overflow-x:auto;flex-shrink:0}
+.tbar::-webkit-scrollbar{display:none}
+.tb{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 10px;border-radius:9px;border:1px solid rgba(255,255,255,0.07);background:#111c2a;color:#5a8a9a;font-family:inherit;font-size:9px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.tb:active{transform:scale(.93);background:#162234}
+.tb.vrec{border-color:#ff4466;background:rgba(255,68,102,0.1);color:#ff4466}
+.ti{font-size:15px;line-height:1}
 
-.msg-row{display:flex;gap:8px;align-items:flex-end;animation:fadeUp 0.2s ease}
-.msg-row.user{flex-direction:row-reverse}
-.avatar{width:28px;height:28px;border-radius:8px;flex-shrink:0;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Orbitron',monospace;font-size:9px;font-weight:900;color:var(--bg)}
-.bubble{max-width:84%;padding:10px 13px;font-size:12px;line-height:1.7;
-  white-space:pre-wrap;word-break:break-word;border-radius:14px}
-.msg-row.bot .bubble{background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:3px}
-.msg-row.user .bubble{background:linear-gradient(135deg,rgba(0,245,196,0.15),rgba(0,148,255,0.12));
-  border:1px solid rgba(0,245,196,0.2);border-bottom-right-radius:3px}
+/* VOICE WAVE */
+#vwave{display:none;align-items:center;gap:3px;padding:5px 14px;flex-shrink:0}
+.wb{width:3px;background:#ff4466;border-radius:2px;animation:wave .8s infinite ease-in-out}
+.wb:nth-child(1){height:8px}.wb:nth-child(2){height:16px;animation-delay:.1s}.wb:nth-child(3){height:22px;animation-delay:.2s}.wb:nth-child(4){height:16px;animation-delay:.3s}.wb:nth-child(5){height:8px;animation-delay:.4s}
+.wlbl{font-size:10px;color:#ff4466;margin-left:6px}
 
-/* Call highlighting */
-.call-buy{color:#00f5c4;font-weight:700;font-size:14px}
-.call-sell{color:#ff4466;font-weight:700;font-size:14px}
-.call-wait{color:#ffd700;font-weight:700;font-size:14px}
+/* IMG PREVIEW */
+#ipwrap{padding:5px 12px 0;display:none}
+.ipinner{position:relative;display:inline-block}
+#ipimg{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid rgba(0,148,255,.3);display:block}
+.ipclear{position:absolute;top:-6px;right:-6px;background:#ff4466;border:none;border-radius:50%;width:18px;height:18px;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
 
-/* Typing */
-.typing-bubble{background:var(--surface);border:1px solid var(--border);border-radius:14px;border-bottom-left-radius:3px;padding:12px 16px;display:flex;gap:5px;align-items:center}
-.tdot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:typing 1.2s infinite}
-.tdot:nth-child(2){animation-delay:0.2s}
-.tdot:nth-child(3){animation-delay:0.4s}
+/* INPUT ROW */
+.inrow{padding:8px 10px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));border-top:1px solid rgba(255,255,255,0.05);background:#030507;display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+#msgin{flex:1;padding:10px 13px;background:#111c2a;border:1px solid rgba(0,245,196,0.18);border-radius:12px;color:#d4e8ff;font-size:13px;font-family:'JetBrains Mono',monospace;resize:none;outline:none;line-height:1.5;max-height:88px;overflow-y:auto;transition:border-color .2s}
+#msgin:focus{border-color:rgba(0,245,196,.45)}
+#msgin::placeholder{color:#1e3848}
+#sbtn{width:42px;height:42px;border-radius:11px;border:none;background:linear-gradient(135deg,#00f5c4,#0094ff);color:#030507;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+#sbtn:disabled{background:#111c2a;color:#1e3848;cursor:not-allowed}
+#sbtn:active:not(:disabled){transform:scale(.91)}
 
-/* Image preview in chat */
-.chat-img{max-width:220px;border-radius:10px;border:1px solid var(--border);margin-top:4px;display:block}
+/* KNOWLEDGE */
+#pKB{display:none;flex:1;overflow-y:auto;padding:14px 12px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+.ptop{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ptitle{font-family:'Orbitron',monospace;font-size:12px;font-weight:700}
+.psub{font-size:9px;color:#3a5570;margin-top:3px}
+.kbacts{display:flex;gap:6px}
+.btnP{padding:8px 12px;border-radius:8px;border:none;font-family:inherit;font-size:10px;cursor:pointer;font-weight:700;transition:all .15s}
+.prim{background:linear-gradient(135deg,#00f5c4,#0094ff);color:#030507}
+.ghost{background:transparent;border:1px solid rgba(0,245,196,0.2);color:#4a8a7a}
+.btnP:active{transform:scale(.95)}
 
-/* ── Toolbar ── */
-.toolbar{display:flex;gap:6px;padding:8px 12px 4px;flex-shrink:0;overflow-x:auto}
-.toolbar::-webkit-scrollbar{display:none}
-.tool-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 10px;
-  border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:var(--surface);
-  color:var(--text2);font-family:inherit;font-size:9px;cursor:pointer;white-space:nowrap;
-  flex-shrink:0;transition:all 0.15s;letter-spacing:0.03em}
-.tool-btn:active{transform:scale(0.94);background:var(--surface2)}
-.tool-btn.active-voice{border-color:var(--danger);background:rgba(255,68,102,0.1);color:var(--danger)}
-.tool-icon{font-size:16px;line-height:1}
+/* ADD FORM */
+#addForm{display:none;background:#111c2a;border:1px solid rgba(0,148,255,.2);border-radius:12px;padding:14px;margin-bottom:12px}
+.flbl{font-size:9px;color:#0094ff;letter-spacing:.08em;display:block;margin-bottom:10px}
+.frow{display:flex;gap:8px;margin-bottom:9px}
+.fsel,.finp{padding:9px 10px;background:#0d1520;border:1px solid rgba(255,255,255,.07);border-radius:8px;color:#d4e8ff;font-size:11px;font-family:'JetBrains Mono',monospace;outline:none}
+.fsel{cursor:pointer}
+.fsel option{background:#0d1520}
+.finp{flex:1}
+.fta{width:100%;padding:9px 10px;background:#0d1520;border:1px solid rgba(255,255,255,.07);border-radius:8px;color:#d4e8ff;font-size:11px;font-family:'JetBrains Mono',monospace;resize:vertical;outline:none;line-height:1.6;min-height:75px}
+.facts{display:flex;gap:8px;margin-top:9px}
 
-/* ── Input ── */
-.input-area{padding:8px 10px;padding-bottom:calc(8px + var(--safe-b));
-  border-top:1px solid rgba(255,255,255,0.05);background:rgba(3,5,7,0.97);
-  display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
-textarea#msg{flex:1;padding:10px 13px;background:var(--surface);
-  border:1px solid rgba(0,245,196,0.15);border-radius:12px;color:var(--text);
-  font-size:13px;font-family:'JetBrains Mono',monospace;resize:none;outline:none;
-  line-height:1.5;max-height:90px;transition:border-color 0.2s}
-textarea#msg:focus{border-color:rgba(0,245,196,0.4)}
-textarea#msg::placeholder{color:var(--text3)}
-.send-btn{width:42px;height:42px;border-radius:11px;border:none;flex-shrink:0;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  color:var(--bg);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
-.send-btn:disabled{background:var(--surface);color:var(--text3)}
-.send-btn:active:not(:disabled){transform:scale(0.92)}
+/* EXTRACT BOX */
+.exbox{background:rgba(0,148,255,.05);border:1px solid rgba(0,148,255,.15);border-radius:9px;padding:10px;margin-bottom:10px}
+.exlbl{font-size:9px;color:#0094ff;letter-spacing:.06em;display:block;margin-bottom:6px}
+.exta{width:100%;padding:8px 10px;background:#0d1520;border:1px solid rgba(255,255,255,.07);border-radius:7px;color:#d4e8ff;font-size:11px;font-family:'JetBrains Mono',monospace;outline:none;resize:vertical;min-height:60px;line-height:1.5}
+.exbtn{margin-top:6px;padding:7px 13px;border-radius:7px;border:none;background:#0094ff;color:#fff;font-size:10px;font-family:inherit;cursor:pointer;font-weight:700}
 
-/* Image preview before send */
-#img-preview-wrap{padding:6px 12px 0;display:none}
-.img-preview-inner{position:relative;display:inline-block}
-#img-preview{width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--border2);display:block}
-.img-clear{position:absolute;top:-6px;right:-6px;background:var(--danger);border:none;border-radius:50%;
-  width:18px;height:18px;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* KB ENTRIES */
+.kbe{border-radius:10px;padding:11px 12px;margin-bottom:8px;background:rgba(255,255,255,.02);border-top:1px solid rgba(255,255,255,.04)}
+.kbeh{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
+.kbtag{font-size:8px;padding:3px 7px;border-radius:4px;font-weight:700;letter-spacing:.05em}
+.kbet{font-size:11px;font-weight:700;color:#d4e8ff;margin-top:4px}
+.kbeb{font-size:10px;color:#5a7a8a;margin-top:5px;line-height:1.6}
+.delbtn{background:transparent;border:none;color:#1e3848;font-size:17px;cursor:pointer;flex-shrink:0;line-height:1;padding:0 2px}
+.delbtn:active{color:#ff4466}
+.kbempty{text-align:center;padding:44px 16px;border:1px dashed rgba(255,255,255,.06);border-radius:12px}
 
-/* Voice indicator */
-#voice-wave{display:none;align-items:center;gap:3px;padding:6px 12px}
-.wave-bar{width:3px;background:var(--danger);border-radius:2px;animation:wave 0.8s infinite ease-in-out}
-.wave-bar:nth-child(1){height:8px;animation-delay:0s}
-.wave-bar:nth-child(2){height:16px;animation-delay:0.1s}
-.wave-bar:nth-child(3){height:24px;animation-delay:0.2s}
-.wave-bar:nth-child(4){height:16px;animation-delay:0.3s}
-.wave-bar:nth-child(5){height:8px;animation-delay:0.4s}
-.wave-label{font-size:10px;color:var(--danger);margin-left:6px;letter-spacing:0.05em}
+/* JOURNAL */
+#pJournal{display:none;flex:1;overflow-y:auto;padding:14px 12px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+.jstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.jstat{background:#111c2a;border:1px solid rgba(0,245,196,.1);border-radius:10px;padding:10px;text-align:center}
+.jsval{font-family:'Orbitron',monospace;font-size:15px;font-weight:700}
+.jslbl{font-size:9px;color:#3a5570;margin-top:3px;letter-spacing:.05em}
+.gn{color:#00f5c4}.rd{color:#ff4466}.gl{color:#ffd700}
 
-/* ── Knowledge Base ── */
-#tab-kb{flex:1;overflow-y:auto;padding:14px 12px;padding-bottom:calc(14px + var(--safe-b));display:none;-webkit-overflow-scrolling:touch}
-.kb-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px}
-.kb-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700}
-.kb-actions{display:flex;gap:6px}
-.btn-sm{padding:8px 12px;border-radius:8px;border:none;font-family:inherit;font-size:10px;cursor:pointer;font-weight:700;transition:all 0.15s;letter-spacing:0.03em}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg)}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
-.btn-sm:active{transform:scale(0.95)}
+/* TRADE FORM */
+#tradeForm{display:none;background:#111c2a;border:1px solid rgba(0,148,255,.2);border-radius:12px;padding:14px;margin-bottom:12px}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px}
+.tfl label{font-size:9px;color:#3a5570;letter-spacing:.05em;display:block;margin-bottom:3px}
+.tfi{width:100%;padding:9px 10px;background:#0d1520;border:1px solid rgba(255,255,255,.07);border-radius:8px;color:#d4e8ff;font-size:12px;font-family:'JetBrains Mono',monospace;outline:none}
+.tfsel{width:100%;padding:9px 10px;background:#0d1520;border:1px solid rgba(255,255,255,.07);border-radius:8px;color:#d4e8ff;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer}
+.tfsel option{background:#0d1520}
+.tentry{border-radius:9px;padding:10px 12px;margin-bottom:7px;background:#111c2a;border:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:flex-start}
+.tsym{font-size:12px;font-weight:700;font-family:'Orbitron',monospace}
+.tmeta{font-size:9px;color:#3a5570;margin-top:3px}
+.tpnl{font-size:14px;font-weight:700;font-family:'Orbitron',monospace;text-align:right}
 
-/* Add form */
-.add-form{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:12px;display:none}
-.form-label{font-size:10px;color:var(--accent);letter-spacing:0.08em;margin-bottom:10px;display:block}
-.form-row{display:flex;gap:8px;margin-bottom:10px}
-.f-select,.f-input{padding:9px 11px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
-  border-radius:9px;color:var(--text);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none}
-.f-select{cursor:pointer}
-.f-select option{background:var(--bg3)}
-.f-input{flex:1}
-.f-textarea{width:100%;padding:9px 11px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
-  border-radius:9px;color:var(--text);font-size:11px;font-family:'JetBrains Mono',monospace;
-  resize:vertical;outline:none;line-height:1.6;min-height:80px}
-.form-actions{display:flex;gap:8px;margin-top:10px}
+/* SETTINGS */
+#pSettings{display:none;flex:1;overflow-y:auto;padding:14px 12px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+.ssec{background:#111c2a;border:1px solid rgba(0,245,196,.1);border-radius:12px;padding:14px;margin-bottom:12px}
+.ssecttl{font-size:9px;color:#0094ff;letter-spacing:.08em;margin-bottom:11px}
+.srow{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.srow:last-child{border-bottom:none;padding-bottom:0}
+.srl{font-size:11px;color:#d4e8ff}
+.srs{font-size:9px;color:#3a5570}
+.si{width:100%;padding:9px 11px;background:#0d1520;border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#d4e8ff;font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;margin-top:6px}
+.savebtn{width:100%;padding:10px;border-radius:8px;border:none;background:#00f5c4;color:#030507;font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;margin-top:7px;transition:all .15s}
+.savebtn:active{transform:scale(.97)}
+.exprow{display:flex;gap:7px;margin-top:7px}
+.expbtn{flex:1;padding:9px;border-radius:8px;border:1px solid rgba(0,245,196,.18);background:transparent;color:#4a8a7a;font-size:10px;font-family:inherit;cursor:pointer;transition:all .15s}
+.expbtn:active{background:#111c2a}
+.trainbox{font-size:10px;color:#5a7a8a;line-height:1.8;padding:10px;background:rgba(0,245,196,.03);border:1px solid rgba(0,245,196,.08);border-radius:8px}
+.trainbox strong{color:#00f5c4}
 
-/* Extract AI button */
-.extract-section{margin-bottom:10px;padding:10px;background:rgba(0,148,255,0.06);border:1px solid rgba(0,148,255,0.15);border-radius:9px}
-.extract-label{font-size:9px;color:var(--accent2);letter-spacing:0.08em;margin-bottom:7px;display:block}
-.extract-input{width:100%;padding:8px 11px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
-  border-radius:8px;color:var(--text);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none;margin-bottom:7px}
-.extract-btn{padding:7px 14px;border-radius:8px;border:none;background:var(--accent2);color:#fff;
-  font-size:10px;font-family:inherit;cursor:pointer;font-weight:700}
+/* KEYFRAMES */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes tdot{0%,100%{opacity:.3;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes wave{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1)}}
 
-/* KB entries */
-.kb-entry{border-radius:11px;padding:12px;margin-bottom:9px;background:rgba(255,255,255,0.02);
-  border-left:3px solid var(--accent);border-top:1px solid rgba(255,255,255,0.05)}
-.kb-entry-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.kb-tag{font-size:8px;padding:3px 7px;border-radius:4px;font-weight:700;letter-spacing:0.06em;white-space:nowrap}
-.kb-entry-title{font-size:11px;font-weight:700;color:var(--text);margin-top:4px}
-.kb-entry-body{font-size:10px;color:var(--text2);margin-top:6px;line-height:1.6}
-.del-btn{background:transparent;border:none;color:var(--text3);font-size:17px;cursor:pointer;flex-shrink:0;line-height:1}
-.del-btn:active{color:var(--danger)}
-.kb-empty{text-align:center;padding:44px 16px;border:1px dashed rgba(255,255,255,0.07);border-radius:12px}
-.kb-empty-icon{font-size:34px;margin-bottom:10px}
-.kb-empty-text{font-size:11px;color:var(--text2)}
-.kb-empty-sub{font-size:10px;color:var(--text3);margin-top:6px;line-height:1.5}
-
-/* ── Trade Journal ── */
-#tab-journal{flex:1;overflow-y:auto;padding:14px 12px;padding-bottom:calc(14px + var(--safe-b));display:none;-webkit-overflow-scrolling:touch}
-.j-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.j-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700}
-.j-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.j-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
-.j-stat-val{font-family:'Orbitron',monospace;font-size:15px;font-weight:700}
-.j-stat-label{font-size:9px;color:var(--text2);margin-top:3px;letter-spacing:0.05em}
-.j-win{color:#00f5c4}.j-loss{color:#ff4466}.j-neutral{color:var(--gold)}
-
-/* Add trade form */
-.trade-form{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:12px;display:none}
-.trade-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.t-field label{font-size:9px;color:var(--text2);letter-spacing:0.06em;display:block;margin-bottom:4px}
-.t-input{width:100%;padding:9px 10px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
-  border-radius:8px;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none}
-.t-select{width:100%;padding:9px 10px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
-  border-radius:8px;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer}
-.t-select option{background:var(--bg3)}
-
-/* Trade entries */
-.trade-entry{border-radius:10px;padding:11px 13px;margin-bottom:8px;background:var(--surface);
-  border:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:flex-start}
-.trade-left{flex:1}
-.trade-symbol{font-size:13px;font-weight:700;font-family:'Orbitron',monospace}
-.trade-meta{font-size:10px;color:var(--text2);margin-top:3px}
-.trade-pnl{font-size:15px;font-weight:700;font-family:'Orbitron',monospace;text-align:right}
-.trade-pnl.pos{color:#00f5c4}.trade-pnl.neg{color:#ff4466}
-
-/* ── Settings ── */
-#tab-settings{flex:1;overflow-y:auto;padding:14px 12px;padding-bottom:calc(14px + var(--safe-b));display:none;-webkit-overflow-scrolling:touch}
-.s-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;margin-bottom:14px}
-.s-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
-.s-section-title{font-size:10px;color:var(--accent2);letter-spacing:0.08em;margin-bottom:12px}
-.s-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
-.s-row:last-child{border-bottom:none;padding-bottom:0}
-.s-row-label{font-size:11px;color:var(--text)}
-.s-row-sub{font-size:9px;color:var(--text2);margin-top:2px}
-.s-input{padding:8px 11px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
-  border-radius:8px;color:var(--text);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none;width:100%;margin-top:8px}
-.api-save-btn{padding:9px 16px;border-radius:8px;border:none;background:var(--accent);color:var(--bg);
-  font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;margin-top:8px;width:100%}
-.export-btn{padding:9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);
-  font-size:10px;font-family:inherit;cursor:pointer;flex:1;transition:all 0.15s}
-.export-btn:active{background:var(--surface2)}
-.export-row{display:flex;gap:8px;margin-top:6px}
-.train-info{font-size:10px;color:var(--text2);line-height:1.7;padding:10px;background:rgba(0,245,196,0.04);border-radius:8px;border:1px solid rgba(0,245,196,0.08)}
-.train-info strong{color:var(--accent)}
-
-/* Hidden */
-.hidden{display:none!important}
-
-/* Animations */
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-@keyframes typing{0%,100%{opacity:0.3;transform:scale(0.7)}50%{opacity:1;transform:scale(1)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-@keyframes wave{0%,100%{transform:scaleY(0.5)}50%{transform:scaleY(1)}}
-
-/* Scrollbar */
-::-webkit-scrollbar{width:2px;height:2px}
+::-webkit-scrollbar{width:2px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(0,245,196,0.2);border-radius:2px}
+::-webkit-scrollbar-thumb{background:rgba(0,245,196,.15);border-radius:2px}
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="ambient"></div>
 
-  <!-- Header -->
-  <header class="header">
-    <div class="header-left">
+  <!-- HEADER -->
+  <div class="hdr">
+    <div style="display:flex;align-items:center">
       <div class="logo">TS</div>
-      <div>
-        <div class="brand">TRADESENSE AI</div>
-        <div class="brand-v">v3.0 · NSE/BSE/CRYPTO · FREE</div>
+      <div class="brand">
+        <div class="b1">TRADESENSE AI</div>
+        <div class="b2">v3 · NSE/BSE/CRYPTO · FREE</div>
       </div>
     </div>
-    <div class="status-row">
-      <div class="status-pill">
-        <div class="pulse"></div>
-        <span class="status-text">LIVE</span>
-      </div>
-    </div>
-  </header>
+    <div class="live"><div class="ldot"></div><span class="ltxt">LIVE</span></div>
+  </div>
 
-  <!-- Tabs -->
+  <!-- TABS -->
   <div class="tabs">
-    <button class="tab active" id="tab-btn-chat" onclick="switchTab('chat')">📡 CONSOLE</button>
-    <button class="tab" id="tab-btn-kb" onclick="switchTab('kb')">🧠 BRAIN <span class="badge" id="kb-count">0</span></button>
-    <button class="tab" id="tab-btn-journal" onclick="switchTab('journal')">📒 JOURNAL</button>
-    <button class="tab" id="tab-btn-settings" onclick="switchTab('settings')">⚙️ CONFIG</button>
+    <button class="t on" id="tChat" onclick="show('Chat')">📡 CONSOLE</button>
+    <button class="t" id="tKB" onclick="show('KB')">🧠 BRAIN <span class="bdg" id="kbc">0</span></button>
+    <button class="t" id="tJournal" onclick="show('Journal')">📒 JOURNAL</button>
+    <button class="t" id="tSettings" onclick="show('Settings')">⚙️ CONFIG</button>
   </div>
 
-  <!-- ═══ CHAT TAB ═══ -->
-  <div id="tab-chat" style="display:flex;flex-direction:column;flex:1;min-height:0">
+  <!-- ── CHAT ── -->
+  <div id="pChat">
+    <div class="msgs" id="msgs"></div>
 
-    <div class="messages" id="messages"></div>
-
-    <!-- Voice wave indicator -->
-    <div id="voice-wave">
-      <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
-      <div class="wave-bar"></div><div class="wave-bar"></div>
-      <span class="wave-label">LISTENING…</span>
+    <div id="vwave">
+      <div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div><div class="wb"></div>
+      <span class="wlbl">LISTENING…</span>
     </div>
 
-    <!-- Image preview before send -->
-    <div id="img-preview-wrap">
-      <div class="img-preview-inner">
-        <img id="img-preview" src="" alt=""/>
-        <button class="img-clear" onclick="clearImg()">×</button>
+    <div id="ipwrap">
+      <div class="ipinner">
+        <img id="ipimg" src="" alt=""/>
+        <button class="ipclear" onclick="clearImg()">×</button>
       </div>
     </div>
 
-    <!-- Toolbar -->
-    <div class="toolbar">
-      <button class="tool-btn" id="voice-btn" onclick="toggleVoice()">
-        <span class="tool-icon">🎤</span>VOICE
-      </button>
-      <button class="tool-btn" onclick="triggerCamera()">
-        <span class="tool-icon">📸</span>CHART
-      </button>
-      <button class="tool-btn" onclick="triggerFile()">
-        <span class="tool-icon">📄</span>PDF/IMG
-      </button>
-      <button class="tool-btn" onclick="quickPrompt('Give me the best intraday trade right now for NSE/Crypto based on my strategies')">
-        <span class="tool-icon">⚡</span>QUICK CALL
-      </button>
-      <button class="tool-btn" onclick="quickPrompt('What are the key market levels I should watch today?')">
-        <span class="tool-icon">🎯</span>LEVELS
-      </button>
-      <button class="tool-btn" onclick="quickPrompt('Analyze my recent trades and tell me what I am doing wrong and how to improve')">
-        <span class="tool-icon">🔍</span>REVIEW
-      </button>
+    <div class="tbar">
+      <button class="tb" id="vbtn" onclick="toggleVoice()"><span class="ti">🎤</span>VOICE</button>
+      <button class="tb" onclick="document.getElementById('camIn').click()"><span class="ti">📸</span>CHART</button>
+      <button class="tb" onclick="document.getElementById('fileIn').click()"><span class="ti">📄</span>FILE</button>
+      <button class="tb" onclick="qp('Give me the best intraday trade call right now for NSE/Crypto using my strategies. Be specific with entry, SL and targets.')"><span class="ti">⚡</span>CALL</button>
+      <button class="tb" onclick="qp('What are the key support and resistance levels to watch today for NIFTY and BANKNIFTY?')"><span class="ti">🎯</span>LEVELS</button>
+      <button class="tb" onclick="qp('Analyse my trade journal, identify my patterns, tell me my weaknesses and how to improve my win rate.')"><span class="ti">🔍</span>REVIEW</button>
     </div>
 
-    <!-- Hidden inputs -->
-    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleImg(this)"/>
-    <input type="file" id="file-input" accept="image/*,.pdf" style="display:none" onchange="handleImg(this)"/>
+    <input type="file" id="camIn" accept="image/*" capture="environment" style="display:none" onchange="gotImg(this)"/>
+    <input type="file" id="fileIn" accept="image/*" style="display:none" onchange="gotImg(this)"/>
 
-    <!-- Input -->
-    <div class="input-area">
-      <textarea id="msg" rows="1" placeholder="Speak or type market data, chart description…"
-        oninput="autoResize(this)"></textarea>
-      <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>↑</button>
+    <div class="inrow">
+      <textarea id="msgin" rows="1" placeholder="Type or speak market data…"></textarea>
+      <button id="sbtn" disabled onclick="send()">↑</button>
     </div>
   </div>
 
-  <!-- ═══ KNOWLEDGE BASE TAB ═══ -->
-  <div id="tab-kb">
-    <div class="kb-topbar">
-      <div>
-        <div class="kb-title">🧠 BRAIN</div>
-        <div style="font-size:9px;color:var(--text2);margin-top:3px">Strategies · Indicators · Research · Rules</div>
-      </div>
-      <div class="kb-actions">
-        <button class="btn-sm btn-ghost" onclick="importKB()">↑ Import</button>
-        <button class="btn-sm btn-primary" onclick="toggleAddForm()">+ Add</button>
+  <!-- ── KNOWLEDGE BASE ── -->
+  <div id="pKB">
+    <div class="ptop">
+      <div><div class="ptitle">🧠 BRAIN</div><div class="psub">Feed strategies · indicators · research</div></div>
+      <div class="kbacts">
+        <button class="btnP ghost" onclick="importKB()">↑ Import</button>
+        <button class="btnP prim" onclick="toggleAdd()">+ Add</button>
       </div>
     </div>
 
-    <!-- Add form -->
-    <div class="add-form" id="add-form">
-      <span class="form-label">NEW KNOWLEDGE ENTRY</span>
-
-      <!-- AI Extract section -->
-      <div class="extract-section">
-        <span class="extract-label">🤖 AI EXTRACT — Paste YouTube transcript, article, or notes below and let AI extract the strategy automatically</span>
-        <textarea class="extract-input" id="extract-raw" rows="3" placeholder="Paste raw transcript, article text, or messy notes here…" style="resize:vertical;line-height:1.5"></textarea>
-        <button class="extract-btn" onclick="aiExtract()">⚡ Extract Strategy with AI</button>
+    <div id="addForm">
+      <span class="flbl">NEW KNOWLEDGE ENTRY</span>
+      <div class="exbox">
+        <span class="exlbl">🤖 AI EXTRACT — paste YouTube transcript or article, AI pulls the strategy out</span>
+        <textarea class="exta" id="exRaw" placeholder="Paste raw text here…"></textarea>
+        <button class="exbtn" onclick="aiExtract()">⚡ Extract with AI</button>
       </div>
-
-      <div class="form-row">
-        <select class="f-select" id="entry-type">
+      <div class="frow">
+        <select class="fsel" id="eType">
           <option value="strategy">📊 Strategy</option>
           <option value="indicator">📈 Indicator</option>
           <option value="research">🔬 Research</option>
@@ -379,116 +251,100 @@ textarea#msg::placeholder{color:var(--text3)}
           <option value="rule">📋 Rule</option>
           <option value="pattern">🕯️ Pattern</option>
         </select>
-        <input type="text" class="f-input" id="entry-title" placeholder="Title e.g. ORB 9:20 Strategy"/>
+        <input type="text" class="finp" id="eTitle" placeholder="Title e.g. ORB 9:20"/>
       </div>
-      <textarea class="f-textarea" id="entry-content" rows="4" placeholder="Strategy rules, entry/exit conditions, indicators used…"></textarea>
-      <div class="form-actions">
-        <button class="btn-sm btn-primary" onclick="saveEntry()">Save</button>
-        <button class="btn-sm btn-ghost" onclick="toggleAddForm()">Cancel</button>
+      <textarea class="fta" id="eContent" placeholder="Rules, entry/exit conditions, indicators…"></textarea>
+      <div class="facts">
+        <button class="btnP prim" onclick="saveEntry()">Save</button>
+        <button class="btnP ghost" onclick="toggleAdd()">Cancel</button>
       </div>
     </div>
 
-    <div id="kb-list"></div>
+    <div id="kbList"></div>
   </div>
 
-  <!-- ═══ JOURNAL TAB ═══ -->
-  <div id="tab-journal">
-    <div class="j-topbar">
-      <div class="j-title">📒 TRADE JOURNAL</div>
-      <button class="btn-sm btn-primary" onclick="toggleTradeForm()">+ Log Trade</button>
+  <!-- ── JOURNAL ── -->
+  <div id="pJournal">
+    <div class="ptop">
+      <div><div class="ptitle">📒 JOURNAL</div><div class="psub">AI learns from every trade you log</div></div>
+      <button class="btnP prim" onclick="toggleTrade()">+ Log</button>
     </div>
-
-    <!-- Stats -->
-    <div class="j-stats">
-      <div class="j-stat"><div class="j-stat-val j-win" id="stat-wins">0</div><div class="j-stat-label">WINS</div></div>
-      <div class="j-stat"><div class="j-stat-val j-loss" id="stat-losses">0</div><div class="j-stat-label">LOSSES</div></div>
-      <div class="j-stat"><div class="j-stat-val j-neutral" id="stat-pnl">₹0</div><div class="j-stat-label">TOTAL P&L</div></div>
+    <div class="jstats">
+      <div class="jstat"><div class="jsval gn" id="sWins">0</div><div class="jslbl">WINS</div></div>
+      <div class="jstat"><div class="jsval rd" id="sLoss">0</div><div class="jslbl">LOSSES</div></div>
+      <div class="jstat"><div class="jsval gl" id="sPnl">₹0</div><div class="jslbl">P&L</div></div>
     </div>
-
-    <!-- Add trade form -->
-    <div class="trade-form" id="trade-form">
-      <span class="form-label">LOG TRADE</span>
-      <div class="trade-grid">
-        <div class="t-field"><label>SYMBOL</label><input type="text" class="t-input" id="t-symbol" placeholder="NIFTY / BTC"/></div>
-        <div class="t-field"><label>TYPE</label>
-          <select class="t-select" id="t-type"><option value="BUY">BUY (LONG)</option><option value="SELL">SELL (SHORT)</option></select>
-        </div>
-        <div class="t-field"><label>ENTRY ₹</label><input type="number" class="t-input" id="t-entry" placeholder="0.00"/></div>
-        <div class="t-field"><label>EXIT ₹</label><input type="number" class="t-input" id="t-exit" placeholder="0.00"/></div>
-        <div class="t-field"><label>QTY / LOTS</label><input type="number" class="t-input" id="t-qty" placeholder="1"/></div>
-        <div class="t-field"><label>RESULT</label>
-          <select class="t-select" id="t-result"><option value="WIN">WIN ✅</option><option value="LOSS">LOSS ❌</option><option value="BE">BREAKEVEN</option></select>
-        </div>
+    <div id="tradeForm">
+      <span class="flbl">LOG TRADE</span>
+      <div class="tgrid">
+        <div class="tfl"><label>SYMBOL</label><input class="tfi" id="tSym" placeholder="NIFTY / BTC"/></div>
+        <div class="tfl"><label>TYPE</label><select class="tfsel" id="tType"><option value="BUY">BUY LONG</option><option value="SELL">SELL SHORT</option></select></div>
+        <div class="tfl"><label>ENTRY ₹</label><input type="number" class="tfi" id="tEntry" placeholder="0"/></div>
+        <div class="tfl"><label>EXIT ₹</label><input type="number" class="tfi" id="tExit" placeholder="0"/></div>
+        <div class="tfl"><label>QTY/LOTS</label><input type="number" class="tfi" id="tQty" placeholder="1"/></div>
+        <div class="tfl"><label>RESULT</label><select class="tfsel" id="tRes"><option value="WIN">WIN ✅</option><option value="LOSS">LOSS ❌</option><option value="BE">BREAKEVEN</option></select></div>
       </div>
-      <div class="t-field" style="margin-bottom:10px"><label>NOTES / WHAT HAPPENED</label>
-        <textarea class="t-input" id="t-notes" rows="2" placeholder="Why did you enter? What went right/wrong?" style="resize:vertical;line-height:1.5;width:100%"></textarea>
-      </div>
-      <div class="form-actions">
-        <button class="btn-sm btn-primary" onclick="saveTrade()">Save Trade</button>
-        <button class="btn-sm btn-ghost" onclick="toggleTradeForm()">Cancel</button>
+      <div class="tfl" style="margin-bottom:9px"><label>NOTES</label><textarea class="tfi" id="tNotes" rows="2" style="resize:vertical;width:100%;line-height:1.5" placeholder="What went right/wrong?"></textarea></div>
+      <div class="facts">
+        <button class="btnP prim" onclick="saveTrade()">Save Trade</button>
+        <button class="btnP ghost" onclick="toggleTrade()">Cancel</button>
       </div>
     </div>
-
-    <div id="trade-list"></div>
+    <div id="tradeList"></div>
   </div>
 
-  <!-- ═══ SETTINGS TAB ═══ -->
-  <div id="tab-settings">
-    <div class="s-title">⚙️ CONFIG</div>
+  <!-- ── SETTINGS ── -->
+  <div id="pSettings">
+    <div class="ptitle" style="margin-bottom:12px">⚙️ CONFIG</div>
 
-    <!-- API Key -->
-    <div class="s-section">
-      <div class="s-section-title">GEMINI API (FREE)</div>
-      <div class="s-row" style="flex-direction:column;align-items:flex-start">
-        <div class="s-row-label">Google Gemini API Key</div>
-        <div class="s-row-sub">✅ FREE — 1,500 calls/day · Get at aistudio.google.com</div>
-        <input type="password" class="s-input" id="api-key-input" placeholder="AIzaSy…" value=""/>
-        <button class="api-save-btn" onclick="saveApiKey()">Save API Key</button>
+    <div class="ssec">
+      <div class="ssecttl">GEMINI API KEY (FREE)</div>
+      <div class="srow">
+        <div class="srl">Google Gemini API Key</div>
+        <div class="srs">✅ 1,500 free calls/day · aistudio.google.com → Get API Key</div>
+        <input type="password" class="si" id="apiInp" placeholder="AIzaSy…"/>
+        <button class="savebtn" onclick="saveKey()">💾 Save API Key</button>
       </div>
-      <div style="margin-top:12px;padding:10px;background:rgba(0,245,196,0.04);border:1px solid rgba(0,245,196,0.1);border-radius:8px">
-        <div style="font-size:10px;color:var(--accent);font-weight:700;margin-bottom:6px">HOW TO GET FREE KEY:</div>
-        <div style="font-size:10px;color:var(--text2);line-height:1.8">
-          1. Open <strong style="color:var(--text)">aistudio.google.com</strong><br/>
-          2. Sign in with Google account<br/>
-          3. Tap <strong style="color:var(--text)">Get API Key</strong> → Create API key<br/>
-          4. Copy & paste it above → Save
-        </div>
+      <div style="margin-top:10px;padding:10px;background:rgba(0,245,196,.04);border:1px solid rgba(0,245,196,.1);border-radius:8px;font-size:10px;color:#4a7a6a;line-height:1.8">
+        <strong style="color:#00f5c4">HOW TO GET FREE KEY:</strong><br/>
+        1. Open <strong style="color:#d4e8ff">aistudio.google.com</strong><br/>
+        2. Sign in with Google<br/>
+        3. Tap <strong style="color:#d4e8ff">Get API Key → Create API key</strong><br/>
+        4. Copy → paste above → Save
       </div>
     </div>
 
-    <!-- Data management -->
-    <div class="s-section">
-      <div class="s-section-title">DATA MANAGEMENT</div>
-      <div class="export-row">
-        <button class="export-btn" onclick="exportKB()">⬇ Export Knowledge</button>
-        <button class="export-btn" onclick="exportJournal()">⬇ Export Journal</button>
+    <div class="ssec">
+      <div class="ssecttl">DATA BACKUP</div>
+      <div class="exprow">
+        <button class="expbtn" onclick="exportKB()">⬇ Export Brain</button>
+        <button class="expbtn" onclick="exportJournal()">⬇ Export Journal</button>
       </div>
-      <div class="export-row" style="margin-top:6px">
-        <button class="export-btn" onclick="importKB()" style="flex:1">⬆ Import Knowledge</button>
+      <div class="exprow">
+        <button class="expbtn" onclick="importKB()" style="flex:1">⬆ Import Brain</button>
       </div>
     </div>
 
-    <!-- How to train -->
-    <div class="s-section">
-      <div class="s-section-title">HOW TO TRAIN YOUR BOT</div>
-      <div class="train-info">
-<strong>1. 📊 Add Strategies manually</strong>
-Go to 🧠 BRAIN tab → + Add → describe your strategy with entry rules, SL, target logic.
+    <div class="ssec">
+      <div class="ssecttl">HOW TO TRAIN YOUR BOT</div>
+      <div class="trainbox">
+<strong>1. 📊 Type strategies manually</strong>
+Go to 🧠 BRAIN → + Add → describe entry/exit rules.
 
-<strong>2. 🎥 YouTube / Article Extract</strong>
-Copy transcript or article text → paste in the AI Extract box → AI pulls out the strategy for you automatically.
+<strong>2. 🎥 YouTube / Article</strong>
+Copy transcript → paste in AI Extract → auto-extracts strategy.
 
-<strong>3. 📸 Chart Analysis</strong>
-On Console tab tap 📸 CHART → point camera at your chart → AI reads the pattern and analyzes it.
+<strong>3. 📸 Chart Camera</strong>
+Tap CHART in console → point at chart → AI reads pattern.
 
-<strong>4. 📒 Trade Journal</strong>
-Log every trade (win or loss). AI reads your journal and learns your weak points to improve future calls.
+<strong>4. 🎤 Voice</strong>
+Tap MIC → speak your strategy or market data.
 
-<strong>5. 🎤 Voice Training</strong>
-Tap MIC → speak your strategy in plain language → AI understands and uses it.
+<strong>5. 📒 Trade Journal</strong>
+Log every trade. AI learns your patterns and weak points.
 
 <strong>6. ⚡ Quick Call</strong>
-Tap QUICK CALL anytime during market hours for an instant recommendation using all your strategies.
+Tap CALL anytime for instant trade recommendation.
       </div>
     </div>
   </div>
@@ -496,450 +352,360 @@ Tap QUICK CALL anytime during market hours for an instant recommendation using a
 </div><!-- #app -->
 
 <script>
-// ══════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════
-let knowledgeBase = JSON.parse(localStorage.getItem('ts_kb2')||'[]');
-let tradeJournal = JSON.parse(localStorage.getItem('ts_journal')||'[]');
-let chatHistory = [];
-let isLoading = false;
-let pendingImageB64 = null;
-let recognition = null;
-let isListening = false;
+'use strict';
 
-const COLORS = {strategy:'#00f5c4',indicator:'#ffd700',research:'#6366f1',video:'#ff6b35',rule:'#00a3cc',pattern:'#ff4466'};
-const ICONS = {strategy:'📊',indicator:'📈',research:'🔬',video:'🎥',rule:'📋',pattern:'🕯️'};
+// ── STATE ──────────────────────────────────────────────
+let KB = JSON.parse(localStorage.getItem('ts_kb3')||'[]');
+let journal = JSON.parse(localStorage.getItem('ts_j3')||'[]');
+let history = [];
+let busy = false;
+let pendingImg = null;
+let recog = null;
+let listening = false;
+let addOpen = false;
+let tradeOpen = false;
 
-// ══════════════════════════════════════════════════════
-// SYSTEM PROMPT
-// ══════════════════════════════════════════════════════
-function buildSystemPrompt() {
-  const kbContext = knowledgeBase.length
-    ? knowledgeBase.map((e,i)=>`[${i+1}] ${e.type.toUpperCase()} — ${e.title}:\n${e.content}`).join('\n\n')
-    : 'No knowledge base yet — use general best practices.';
+const TC = {strategy:'#00f5c4',indicator:'#ffd700',research:'#6366f1',video:'#ff6b35',rule:'#0094ff',pattern:'#ff4466'};
+const TI = {strategy:'📊',indicator:'📈',research:'🔬',video:'🎥',rule:'📋',pattern:'🕯️'};
 
-  const journalContext = tradeJournal.length
-    ? tradeJournal.slice(-20).map(t=>`${t.symbol} ${t.type} Entry:${t.entry} Exit:${t.exit} Qty:${t.qty} → ${t.result} | ${t.notes||''}`).join('\n')
-    : 'No trade history yet.';
+// ── DOM REFS (set after load) ──────────────────────────
+let msgin, sbtn, msgsEl;
 
-  const wins = tradeJournal.filter(t=>t.result==='WIN').length;
-  const losses = tradeJournal.filter(t=>t.result==='LOSS').length;
-  const winRate = tradeJournal.length ? Math.round(wins/tradeJournal.length*100) : 0;
+window.addEventListener('DOMContentLoaded', () => {
+  msgin = document.getElementById('msgin');
+  sbtn  = document.getElementById('sbtn');
+  msgsEl = document.getElementById('msgs');
 
-  return `You are TradeSense AI — an elite autonomous intraday trading analyst for Indian markets (NSE/BSE F&O, Equity) and Crypto. You think and reason like a top professional trader with 20 years experience. You are the user's personal trading brain.
+  // load saved key
+  const k = localStorage.getItem('ts_key3');
+  if (k) document.getElementById('apiInp').value = k;
 
-CAPABILITIES:
-- Analyze charts, candlestick patterns, indicators from images
-- Give precise BUY/SELL/WAIT/EXIT calls with entry, SL, targets
-- Search web for live news and market context when needed
-- Learn from the user's trade journal to improve recommendations
-- Identify the user's weaknesses and help them improve
-
-USER PROFILE:
-- Win Rate: ${winRate}% (${wins} wins, ${losses} losses from ${tradeJournal.length} trades)
-- Markets: NSE/BSE F&O + Crypto
-
-KNOWLEDGE BASE (User's Strategies & Research):
-${kbContext}
-
-RECENT TRADE JOURNAL (Last 20 trades):
-${journalContext}
-
-TRADE CALL FORMAT (always use this when giving a call):
-━━━━━━━━━━━━━━━━━━━━
-🎯 CALL: [BUY/SELL/WAIT/EXIT]
-📌 Symbol: [name]
-⏰ Timeframe: [e.g. 15min, 1hr]
-💰 Entry Zone: ₹[price range]
-🛑 Stop Loss: ₹[price] ([points] pts)
-🎯 Target 1: ₹[price] ([points] pts)
-🎯 Target 2: ₹[price] ([points] pts)
-📊 R:R Ratio: 1:[ratio]
-🔒 Confidence: [%]
-📋 Strategy Used: [from knowledge base]
-📝 Reasoning: [detailed multi-factor reasoning]
-⚠️ Risk Note: [warnings, market conditions to watch]
-━━━━━━━━━━━━━━━━━━━━
-
-RULES:
-- Capital preservation is PARAMOUNT. Never suggest trade with R:R < 1:1.5
-- Avoid first 15 minutes (9:15-9:30 IST) unless breakout is very strong
-- Warn about 3:00 PM+ exit risk
-- Always mention which of the user's strategies you're applying
-- If chart image is provided, read it carefully before giving call
-- If market conditions are unclear → WAIT
-- Consider user's historical patterns from journal to personalize advice`;
-}
-
-// ══════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════
-window.addEventListener('load', () => {
-  // Init DOM refs
-  msgEl = document.getElementById('msg');
-  sendBtnEl = document.getElementById('send-btn');
-  messagesEl = document.getElementById('messages');
-
-  const savedKey = localStorage.getItem('ts_apikey');
-  if (savedKey) document.getElementById('api-key-input').value = savedKey;
-
-  addBotMessage(`👋 TradeSense AI v3 is ready!\n\nPowered by Google Gemini — completely FREE (1,500 calls/day).\n\n🔑 First: Go to ⚙️ CONFIG → add your FREE Gemini API key\n🧠 Then: Train me in the BRAIN tab with your strategies\n📡 Then: Come here for live trade calls\n\n⚡ Tap QUICK CALL anytime for instant analysis!`);
-  renderKB(); renderJournal(); updateKBCount();
-
-  msgEl.addEventListener('input', function(){
-    sendBtnEl.disabled = (!this.value.trim() && !pendingImageB64) || isLoading;
+  // input events
+  msgin.addEventListener('input', () => {
+    msgin.style.height = 'auto';
+    msgin.style.height = Math.min(msgin.scrollHeight, 88) + 'px';
+    sbtn.disabled = (!msgin.value.trim() && !pendingImg) || busy;
   });
-  msgEl.addEventListener('keydown', handleKey);
+
+  msgin.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+
+  // welcome
+  botMsg('👋 TradeSense AI v3 — powered by Google Gemini (FREE)\n\n🔑 Step 1: Go to ⚙️ CONFIG → paste your Gemini API key → Save\n🧠 Step 2: Go to 🧠 BRAIN → add your strategies\n📡 Step 3: Come back here and type or speak market data\n\n⚡ Tap CALL for an instant trade recommendation!');
+
+  renderKB(); renderJournal(); updateKBC();
 });
 
-// ══════════════════════════════════════════════════════
-// API CALL — Google Gemini (FREE)
-// ══════════════════════════════════════════════════════
-async function callAPI(messages) {
-  const apiKey = localStorage.getItem('ts_apikey');
-  if (!apiKey) throw new Error('No API key. Go to ⚙️ CONFIG and add your Gemini API key.');
+// ── TABS ───────────────────────────────────────────────
+function show(name) {
+  ['Chat','KB','Journal','Settings'].forEach(n => {
+    const p = document.getElementById('p'+n);
+    const t = document.getElementById('t'+n);
+    const active = n === name;
+    p.style.display = active ? (n==='Chat'?'flex':'block') : 'none';
+    t.classList.toggle('on', active);
+  });
+}
 
-  // Convert chat history to Gemini format
-  const geminiContents = messages.map(m => {
+// ── GEMINI API ─────────────────────────────────────────
+function buildSystem() {
+  const kbTxt = KB.length
+    ? KB.map((e,i)=>`[${i+1}] ${e.type.toUpperCase()} — ${e.title}:\n${e.content}`).join('\n\n')
+    : 'No strategies added yet. Use general professional trading best practices.';
+
+  const jTxt = journal.length
+    ? journal.slice(-15).map(t=>`${t.sym} ${t.type} E:${t.entry} X:${t.exit} Q:${t.qty} → ${t.res} P&L:₹${(t.pnl||0).toFixed(0)} | ${t.notes||''}`).join('\n')
+    : 'No trades logged yet.';
+
+  const wins = journal.filter(t=>t.res==='WIN').length;
+  const tot = journal.length;
+  const wr = tot ? Math.round(wins/tot*100) : 0;
+
+  return `You are TradeSense AI — an elite autonomous intraday trading analyst for NSE/BSE (F&O + Equity) and Crypto. You are the user's personal professional trading brain with 20 years of expertise.
+
+USER STATS: ${wr}% win rate (${wins}/${tot} trades)
+
+KNOWLEDGE BASE:
+${kbTxt}
+
+RECENT TRADES:
+${jTxt}
+
+When giving a trade call, ALWAYS use this format:
+━━━━━━━━━━━━━━━━━━━
+🎯 CALL: [BUY/SELL/WAIT/EXIT]
+📌 Symbol: 
+⏰ Timeframe: 
+💰 Entry: ₹
+🛑 Stop Loss: ₹
+🎯 Target 1: ₹
+🎯 Target 2: ₹
+📊 R:R: 1:
+🔒 Confidence: %
+📋 Strategy: [which KB strategy applied]
+📝 Why: [reasoning]
+⚠️ Risk: [warnings]
+━━━━━━━━━━━━━━━━━━━
+
+RULES: Capital preservation first. Never suggest R:R < 1:1.5. Avoid 9:15-9:30 AM. Warn about 3 PM exits. Say WAIT if unclear.`;
+}
+
+async function callGemini(msgs) {
+  const key = localStorage.getItem('ts_key3');
+  if (!key) throw new Error('NO_KEY');
+
+  const contents = msgs.map(m => {
     if (typeof m.content === 'string') {
-      return {role: m.role === 'assistant' ? 'model' : 'user', parts:[{text: m.content}]};
+      return {role: m.role==='assistant'?'model':'user', parts:[{text:m.content}]};
     }
-    // Handle image messages
     const parts = m.content.map(c => {
-      if (c.type === 'text') return {text: c.text};
-      if (c.type === 'image') return {inlineData:{mimeType: c.source.media_type, data: c.source.data}};
+      if (c.type==='text') return {text:c.text};
+      if (c.type==='image') return {inlineData:{mimeType:c.mimeType, data:c.data}};
       return null;
     }).filter(Boolean);
-    return {role: 'user', parts};
+    return {role:'user', parts};
   });
 
-  const systemPrompt = buildSystemPrompt();
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-
-  const body = {
-    system_instruction: {parts:[{text: systemPrompt}]},
-    contents: geminiContents,
-    generationConfig: {maxOutputTokens: 1200, temperature: 0.4}
-  };
-
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(body)
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`;
+  const res = await fetch(url, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      system_instruction:{parts:[{text:buildSystem()}]},
+      contents,
+      generationConfig:{maxOutputTokens:1200,temperature:0.4}
+    })
   });
-  const data = await res.json();
-
-  if (data.error) throw new Error(data.error.message);
-
-  const text = data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('\n') || 'No response received.';
-  return text;
+  const d = await res.json();
+  if (d.error) throw new Error(d.error.message || 'Gemini error');
+  return d.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('\n') || 'No response.';
 }
 
-// ══════════════════════════════════════════════════════
-// CHAT
-// ══════════════════════════════════════════════════════
-let msgEl, sendBtnEl, messagesEl;
+// ── SEND MESSAGE ───────────────────────────────────────
+async function send() {
+  const txt = msgin.value.trim();
+  if ((!txt && !pendingImg) || busy) return;
 
-function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px';sendBtnEl.disabled=(!el.value.trim()&&!pendingImageB64)||isLoading}
-function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
-function quickPrompt(text){msgEl.value=text;autoResize(msgEl);sendMessage()}
-
-function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function formatMsg(t){
-  return escHtml(t)
-    .replace(/🎯 CALL: (BUY)/g,'🎯 CALL: <span class="call-buy">$1</span>')
-    .replace(/🎯 CALL: (SELL)/g,'🎯 CALL: <span class="call-sell">$1</span>')
-    .replace(/🎯 CALL: (WAIT|EXIT)/g,'🎯 CALL: <span class="call-wait">$1</span>');
-}
-
-function addBotMessage(text, imgSrc) {
-  const row = document.createElement('div');
-  row.className = 'msg-row bot';
-  row.innerHTML = `<div class="avatar">TS</div><div class="bubble">${formatMsg(text)}${imgSrc?`<img src="${imgSrc}" class="chat-img"/>`:''}</div>`;
-  messagesEl.appendChild(row);
-  scrollBottom();
-}
-function addUserMessage(text, imgSrc) {
-  const row = document.createElement('div');
-  row.className = 'msg-row user';
-  row.innerHTML = `<div class="bubble">${escHtml(text)}${imgSrc?`<img src="${imgSrc}" class="chat-img"/>`:''}</div>`;
-  messagesEl.appendChild(row);
-  scrollBottom();
-}
-function showTyping(){const el=document.createElement('div');el.className='msg-row bot';el.id='typing';el.innerHTML=`<div class="avatar">TS</div><div class="typing-bubble"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;messagesEl.appendChild(el);scrollBottom()}
-function hideTyping(){document.getElementById('typing')?.remove()}
-function scrollBottom(){setTimeout(()=>messagesEl.scrollTop=messagesEl.scrollHeight,60)}
-
-async function sendMessage() {
-  const text = msgEl.value.trim();
-  if ((!text && !pendingImageB64) || isLoading) return;
-
-  const apiKey = localStorage.getItem('ts_apikey');
-  if (!apiKey) {
-    addBotMessage('⚙️ No API key set!\n\nGo to ⚙️ CONFIG tab → paste your FREE Gemini API key → Save.\n\nGet it free at aistudio.google.com — sign in with Google, tap "Get API Key".');
+  const key = localStorage.getItem('ts_key3');
+  if (!key) {
+    botMsg('⚙️ API key not set!\n\nGo to ⚙️ CONFIG tab → paste your Gemini key → tap Save.\n\nGet free key at aistudio.google.com');
     return;
   }
 
-  // Build user message content
-  let userContent;
-  if (pendingImageB64) {
-    userContent = [
-      {type:'image',source:{type:'base64',media_type:pendingImageB64.type,data:pendingImageB64.data}},
-      {type:'text',text: text || 'Analyze this chart and give me a trade call based on my strategies.'}
+  // build content
+  let content;
+  if (pendingImg) {
+    content = [
+      {type:'image', mimeType:pendingImg.mimeType, data:pendingImg.data},
+      {type:'text', text: txt || 'Analyze this chart and give me a trade call based on my strategies.'}
     ];
   } else {
-    userContent = text;
+    content = txt;
   }
 
-  addUserMessage(text || '📸 [Chart image sent]', pendingImageB64?.preview);
-  const historyMsg = {role:'user', content: userContent};
-  chatHistory.push(historyMsg);
+  userMsg(txt || '📸 [Chart]', pendingImg?.preview);
+  history.push({role:'user', content});
 
   clearImg();
-  msgEl.value = ''; msgEl.style.height = 'auto';
-  sendBtnEl.disabled = true; isLoading = true;
+  msgin.value = ''; msgin.style.height = 'auto';
+  sbtn.disabled = true; busy = true;
   showTyping();
 
   try {
-    const reply = await callAPI(chatHistory);
-    chatHistory.push({role:'assistant', content: reply});
+    const reply = await callGemini(history);
+    history.push({role:'assistant', content:reply});
     hideTyping();
-    addBotMessage(reply);
+    botMsg(reply);
   } catch(err) {
     hideTyping();
-    addBotMessage(`⚠️ Error: ${err.message}\n\nCheck your API key in ⚙️ CONFIG tab.`);
+    if (err.message === 'NO_KEY') {
+      botMsg('⚙️ No API key! Go to ⚙️ CONFIG → save your Gemini key.');
+    } else {
+      botMsg('⚠️ Error: ' + err.message + '\n\nCheck your API key in ⚙️ CONFIG.');
+    }
   }
 
-  isLoading = false;
-  sendBtnEl.disabled = !msgEl.value.trim();
+  busy = false;
+  sbtn.disabled = !msgin.value.trim();
 }
 
-// ══════════════════════════════════════════════════════
-// VOICE
-// ══════════════════════════════════════════════════════
+function qp(txt) {
+  msgin.value = txt;
+  msgin.style.height = 'auto';
+  msgin.style.height = Math.min(msgin.scrollHeight,88)+'px';
+  sbtn.disabled = false;
+  send();
+}
+
+// ── MESSAGES ───────────────────────────────────────────
+function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function fmt(t){
+  return esc(t)
+    .replace(/🎯 CALL: (BUY)/g,'🎯 CALL: <span class="cBUY">$1</span>')
+    .replace(/🎯 CALL: (SELL)/g,'🎯 CALL: <span class="cSELL">$1</span>')
+    .replace(/🎯 CALL: (WAIT|EXIT)/g,'🎯 CALL: <span class="cWAIT">$1</span>');
+}
+
+function botMsg(txt) {
+  const r = document.createElement('div');
+  r.className = 'row bot';
+  r.innerHTML = `<div class="av">TS</div><div class="bub">${fmt(txt)}</div>`;
+  msgsEl.appendChild(r);
+  scroll();
+}
+function userMsg(txt, imgSrc) {
+  const r = document.createElement('div');
+  r.className = 'row me';
+  r.innerHTML = `<div class="bub">${esc(txt)}${imgSrc?`<img src="${imgSrc}" class="cimg"/>`:''}</div>`;
+  msgsEl.appendChild(r);
+  scroll();
+}
+function showTyping() {
+  const r = document.createElement('div');
+  r.className='trow'; r.id='typ';
+  r.innerHTML=`<div class="av">TS</div><div class="tbub"><div class="td"></div><div class="td"></div><div class="td"></div></div>`;
+  msgsEl.appendChild(r); scroll();
+}
+function hideTyping(){document.getElementById('typ')?.remove()}
+function scroll(){setTimeout(()=>msgsEl.scrollTop=msgsEl.scrollHeight,60)}
+
+// ── VOICE ──────────────────────────────────────────────
 function toggleVoice() {
-  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    addBotMessage('⚠️ Voice not supported in this browser. Use Chrome on Android for voice input.');
+  if (!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)) {
+    botMsg('⚠️ Voice only works in Chrome on Android. Try typing instead.');
     return;
   }
-  if (isListening) { stopVoice(); return; }
+  if (listening) { recog?.stop(); return; }
+  const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+  recog = new SR();
+  recog.lang='en-IN'; recog.continuous=false; recog.interimResults=false;
+  recog.onstart=()=>{listening=true;document.getElementById('vbtn').classList.add('vrec');document.getElementById('vwave').style.display='flex'};
+  recog.onresult=e=>{msgin.value=e.results[0][0].transcript;msgin.style.height='auto';msgin.style.height=Math.min(msgin.scrollHeight,88)+'px';sbtn.disabled=false;stopVoice();setTimeout(send,300)};
+  recog.onerror=recog.onend=stopVoice;
+  recog.start();
+}
+function stopVoice(){listening=false;document.getElementById('vbtn').classList.remove('vrec');document.getElementById('vwave').style.display='none'}
 
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.lang = 'en-IN';
-  recognition.continuous = false;
-  recognition.interimResults = false;
-
-  recognition.onstart = () => {
-    isListening = true;
-    document.getElementById('voice-btn').classList.add('active-voice');
-    document.getElementById('voice-wave').style.display = 'flex';
+// ── IMAGE ──────────────────────────────────────────────
+function gotImg(inp) {
+  const f = inp.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload=e=>{
+    const full=e.target.result;
+    pendingImg={data:full.split(',')[1],mimeType:f.type,preview:full};
+    document.getElementById('ipimg').src=full;
+    document.getElementById('ipwrap').style.display='block';
+    sbtn.disabled=false;
   };
-  recognition.onresult = e => {
-    const transcript = e.results[0][0].transcript;
-    msgEl.value = transcript;
-    autoResize(msgEl);
-    stopVoice();
-    setTimeout(sendMessage, 300);
-  };
-  recognition.onerror = () => stopVoice();
-  recognition.onend = () => stopVoice();
-  recognition.start();
+  r.readAsDataURL(f);
+  inp.value='';
 }
+function clearImg(){pendingImg=null;document.getElementById('ipwrap').style.display='none';document.getElementById('ipimg').src=''}
 
-function stopVoice() {
-  isListening = false;
-  recognition?.stop();
-  document.getElementById('voice-btn').classList.remove('active-voice');
-  document.getElementById('voice-wave').style.display = 'none';
-}
-
-// ══════════════════════════════════════════════════════
-// IMAGE / CHART
-// ══════════════════════════════════════════════════════
-function triggerCamera(){document.getElementById('camera-input').click()}
-function triggerFile(){document.getElementById('file-input').click()}
-
-function handleImg(input) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.type === 'application/pdf') { handlePDF(file); return; }
-  const reader = new FileReader();
-  reader.onload = e => {
-    const full = e.target.result;
-    const data = full.split(',')[1];
-    pendingImageB64 = {data, type: file.type, preview: full};
-    document.getElementById('img-preview').src = full;
-    document.getElementById('img-preview-wrap').style.display = 'block';
-    sendBtnEl.disabled = false;
-  };
-  reader.readAsDataURL(file);
-  input.value = '';
-}
-
-function clearImg() {
-  pendingImageB64 = null;
-  document.getElementById('img-preview-wrap').style.display = 'none';
-  document.getElementById('img-preview').src = '';
-}
-
-function handlePDF(file) {
-  addBotMessage('📄 PDF detected. Please copy-paste the text content from your PDF into the BRAIN tab → AI Extract box. I\'ll extract the strategies automatically!');
-}
-
-// ══════════════════════════════════════════════════════
-// TABS
-// ══════════════════════════════════════════════════════
-function switchTab(tab) {
-  ['chat','kb','journal','settings'].forEach(t => {
-    const el = document.getElementById(`tab-${t}`);
-    const btn = document.getElementById(`tab-btn-${t}`);
-    const isActive = t === tab;
-    el.style.display = isActive ? (t==='chat'?'flex':'block') : 'none';
-    btn.classList.toggle('active', isActive);
-  });
-}
-
-// ══════════════════════════════════════════════════════
-// KNOWLEDGE BASE
-// ══════════════════════════════════════════════════════
-let addFormOpen = false;
-function toggleAddForm(){addFormOpen=!addFormOpen;document.getElementById('add-form').style.display=addFormOpen?'block':'none';if(addFormOpen)document.getElementById('entry-title').focus()}
+// ── KNOWLEDGE BASE ─────────────────────────────────────
+function toggleAdd(){addOpen=!addOpen;document.getElementById('addForm').style.display=addOpen?'block':'none';if(addOpen)document.getElementById('eTitle').focus()}
 
 async function aiExtract() {
-  const raw = document.getElementById('extract-raw').value.trim();
-  if (!raw) return;
-  const apiKey = localStorage.getItem('ts_apikey');
-  if (!apiKey) { alert('Add API key in ⚙️ CONFIG first!'); return; }
-
-  const btn = document.querySelector('.extract-btn');
-  btn.textContent = '⏳ Extracting…'; btn.disabled = true;
-
-  try {
-    const reply = await callAPI([{role:'user',content:`Extract the key trading strategy, rules, indicators, and actionable insights from this text. Format it clearly as a concise strategy note a trader can use. Text:\n\n${raw}`}]);
-    document.getElementById('entry-content').value = reply;
-    document.getElementById('entry-title').value = 'Extracted Strategy';
-    document.getElementById('entry-type').value = 'strategy';
-    document.getElementById('extract-raw').value = '';
-  } catch(e) {
-    alert('Extraction failed: ' + e.message);
-  }
-  btn.textContent = '⚡ Extract Strategy with AI'; btn.disabled = false;
+  const raw=document.getElementById('exRaw').value.trim();
+  if(!raw)return;
+  const key=localStorage.getItem('ts_key3');
+  if(!key){alert('Add Gemini API key in ⚙️ CONFIG first!');return}
+  const btn=document.querySelector('.exbtn');
+  btn.textContent='⏳ Extracting…';btn.disabled=true;
+  try{
+    const r=await callGemini([{role:'user',content:`Extract the key trading strategy, rules, indicators, and actionable insights from this text. Format as a clear, concise strategy note a trader can use:\n\n${raw}`}]);
+    document.getElementById('eContent').value=r;
+    document.getElementById('eTitle').value='Extracted Strategy';
+    document.getElementById('exRaw').value='';
+  }catch(e){alert('Error: '+e.message)}
+  btn.textContent='⚡ Extract with AI';btn.disabled=false;
 }
 
-function saveEntry() {
-  const title = document.getElementById('entry-title').value.trim();
-  const content = document.getElementById('entry-content').value.trim();
-  const type = document.getElementById('entry-type').value;
-  if (!title || !content) return;
-  knowledgeBase.push({id:Date.now(), type, title, content});
-  localStorage.setItem('ts_kb2', JSON.stringify(knowledgeBase));
-  document.getElementById('entry-title').value='';
-  document.getElementById('entry-content').value='';
-  toggleAddForm(); renderKB(); updateKBCount();
+function saveEntry(){
+  const title=document.getElementById('eTitle').value.trim();
+  const content=document.getElementById('eContent').value.trim();
+  if(!title||!content)return;
+  KB.push({id:Date.now(),type:document.getElementById('eType').value,title,content});
+  localStorage.setItem('ts_kb3',JSON.stringify(KB));
+  document.getElementById('eTitle').value='';
+  document.getElementById('eContent').value='';
+  toggleAdd();renderKB();updateKBC();
 }
+function delEntry(id){if(!confirm('Delete?'))return;KB=KB.filter(e=>e.id!==id);localStorage.setItem('ts_kb3',JSON.stringify(KB));renderKB();updateKBC()}
+function updateKBC(){document.getElementById('kbc').textContent=KB.length}
 
-function deleteEntry(id){if(!confirm('Delete?'))return;knowledgeBase=knowledgeBase.filter(e=>e.id!==id);localStorage.setItem('ts_kb2',JSON.stringify(knowledgeBase));renderKB();updateKBCount()}
-function updateKBCount(){document.getElementById('kb-count').textContent=knowledgeBase.length}
-
-function renderKB() {
-  const list = document.getElementById('kb-list');
-  if (!knowledgeBase.length) {
-    list.innerHTML=`<div class="kb-empty"><div class="kb-empty-icon">🧠</div><div class="kb-empty-text">Brain is empty</div><div class="kb-empty-sub">Add strategies, paste YouTube transcripts,<br/>or describe indicators to train your bot.</div></div>`;
-    return;
-  }
-  list.innerHTML = knowledgeBase.map(e=>`
-    <div class="kb-entry" style="border-left-color:${COLORS[e.type]};border-top-color:${COLORS[e.type]}15">
-      <div class="kb-entry-head">
+function renderKB(){
+  const el=document.getElementById('kbList');
+  if(!KB.length){el.innerHTML=`<div class="kbempty"><div style="font-size:34px;margin-bottom:10px">🧠</div><div style="font-size:11px;color:#3a5570">Brain is empty</div><div style="font-size:10px;color:#1e3848;margin-top:6px;line-height:1.6">Add strategies, paste YouTube transcripts,<br/>describe indicators to train your bot.</div></div>`;return}
+  el.innerHTML=KB.map(e=>`
+    <div class="kbe" style="border-left:3px solid ${TC[e.type]}">
+      <div class="kbeh">
         <div style="flex:1">
-          <span class="kb-tag" style="background:${COLORS[e.type]}18;color:${COLORS[e.type]}">${ICONS[e.type]} ${e.type.toUpperCase()}</span>
-          <div class="kb-entry-title">${escHtml(e.title)}</div>
+          <span class="kbtag" style="background:${TC[e.type]}18;color:${TC[e.type]}">${TI[e.type]} ${e.type.toUpperCase()}</span>
+          <div class="kbet">${esc(e.title)}</div>
         </div>
-        <button class="del-btn" onclick="deleteEntry(${e.id})">×</button>
+        <button class="delbtn" onclick="delEntry(${e.id})">×</button>
       </div>
-      <div class="kb-entry-body">${escHtml(e.content.length>160?e.content.slice(0,160)+'…':e.content)}</div>
+      <div class="kbeb">${esc(e.content.length>160?e.content.slice(0,160)+'…':e.content)}</div>
     </div>`).join('');
 }
 
-function exportKB() {
-  const blob = new Blob([JSON.stringify(knowledgeBase,null,2)],{type:'application/json'});
-  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=`tradesense-knowledge-${Date.now()}.json`; a.click();
+function exportKB(){const b=new Blob([JSON.stringify(KB,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`ts-brain-${Date.now()}.json`;a.click()}
+function importKB(){const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);KB=[...KB,...d];localStorage.setItem('ts_kb3',JSON.stringify(KB));renderKB();updateKBC();alert(`Imported ${d.length} entries!`)}catch{alert('Invalid JSON file')}};r.readAsText(f)};i.click()}
+
+// ── JOURNAL ────────────────────────────────────────────
+function toggleTrade(){tradeOpen=!tradeOpen;document.getElementById('tradeForm').style.display=tradeOpen?'block':'none'}
+
+function saveTrade(){
+  const sym=document.getElementById('tSym').value.trim(); if(!sym)return;
+  const entry=parseFloat(document.getElementById('tEntry').value)||0;
+  const exit=parseFloat(document.getElementById('tExit').value)||0;
+  const qty=parseFloat(document.getElementById('tQty').value)||1;
+  const type=document.getElementById('tType').value;
+  const res=document.getElementById('tRes').value;
+  const notes=document.getElementById('tNotes').value.trim();
+  const pnl=type==='BUY'?(exit-entry)*qty:(entry-exit)*qty;
+  journal.push({id:Date.now(),sym,type,entry,exit,qty,res,notes,pnl,date:new Date().toLocaleDateString('en-IN')});
+  localStorage.setItem('ts_j3',JSON.stringify(journal));
+  ['tSym','tEntry','tExit','tQty','tNotes'].forEach(id=>document.getElementById(id).value='');
+  toggleTrade();renderJournal();
 }
 
-function importKB() {
-  const inp = document.createElement('input'); inp.type='file'; inp.accept='.json';
-  inp.onchange = e => {
-    const f=e.target.files[0]; if(!f)return;
-    const r=new FileReader();
-    r.onload=ev=>{try{const d=JSON.parse(ev.target.result);knowledgeBase=[...knowledgeBase,...d];localStorage.setItem('ts_kb2',JSON.stringify(knowledgeBase));renderKB();updateKBCount();alert(`Imported ${d.length} entries!`)}catch{alert('Invalid file')}};
-    r.readAsText(f);
-  };
-  inp.click();
-}
-
-// ══════════════════════════════════════════════════════
-// JOURNAL
-// ══════════════════════════════════════════════════════
-let tradeFormOpen = false;
-function toggleTradeForm(){tradeFormOpen=!tradeFormOpen;document.getElementById('trade-form').style.display=tradeFormOpen?'block':'none'}
-
-function saveTrade() {
-  const symbol=document.getElementById('t-symbol').value.trim();
-  const entry=parseFloat(document.getElementById('t-entry').value)||0;
-  const exit=parseFloat(document.getElementById('t-exit').value)||0;
-  const qty=parseFloat(document.getElementById('t-qty').value)||1;
-  const type=document.getElementById('t-type').value;
-  const result=document.getElementById('t-result').value;
-  const notes=document.getElementById('t-notes').value.trim();
-  if(!symbol)return;
-
-  const pnl = type==='BUY' ? (exit-entry)*qty : (entry-exit)*qty;
-  tradeJournal.push({id:Date.now(),symbol,type,entry,exit,qty,result,notes,pnl,date:new Date().toLocaleDateString('en-IN')});
-  localStorage.setItem('ts_journal',JSON.stringify(tradeJournal));
-
-  ['t-symbol','t-entry','t-exit','t-qty','t-notes'].forEach(id=>document.getElementById(id).value='');
-  toggleTradeForm(); renderJournal();
-}
-
-function renderJournal() {
-  const wins=tradeJournal.filter(t=>t.result==='WIN').length;
-  const losses=tradeJournal.filter(t=>t.result==='LOSS').length;
-  const totalPnl=tradeJournal.reduce((s,t)=>s+(t.pnl||0),0);
-  document.getElementById('stat-wins').textContent=wins;
-  document.getElementById('stat-losses').textContent=losses;
-  document.getElementById('stat-pnl').textContent=(totalPnl>=0?'₹':'−₹')+Math.abs(totalPnl).toFixed(0);
-
-  const list=document.getElementById('trade-list');
-  if(!tradeJournal.length){list.innerHTML=`<div class="kb-empty"><div class="kb-empty-icon">📒</div><div class="kb-empty-text">No trades logged yet</div><div class="kb-empty-sub">Log your trades here. AI learns from your history<br/>to give better calls and identify your patterns.</div></div>`;return}
-  list.innerHTML=[...tradeJournal].reverse().map(t=>`
-    <div class="trade-entry">
-      <div class="trade-left">
-        <div class="trade-symbol" style="color:${t.result==='WIN'?'#00f5c4':t.result==='LOSS'?'#ff4466':'#ffd700'}">${t.symbol} <span style="font-size:10px;color:var(--text2)">${t.type}</span></div>
-        <div class="trade-meta">${t.date} · Entry ₹${t.entry} → Exit ₹${t.exit} · Qty ${t.qty}</div>
-        ${t.notes?`<div style="font-size:9px;color:var(--text3);margin-top:3px">${escHtml(t.notes.slice(0,60))}${t.notes.length>60?'…':''}</div>`:''}
+function renderJournal(){
+  const wins=journal.filter(t=>t.res==='WIN').length;
+  const losses=journal.filter(t=>t.res==='LOSS').length;
+  const totalPnl=journal.reduce((s,t)=>s+(t.pnl||0),0);
+  document.getElementById('sWins').textContent=wins;
+  document.getElementById('sLoss').textContent=losses;
+  document.getElementById('sPnl').textContent=(totalPnl>=0?'₹':'-₹')+Math.abs(totalPnl).toFixed(0);
+  const el=document.getElementById('tradeList');
+  if(!journal.length){el.innerHTML=`<div class="kbempty"><div style="font-size:34px;margin-bottom:10px">📒</div><div style="font-size:11px;color:#3a5570">No trades logged</div><div style="font-size:10px;color:#1e3848;margin-top:6px">Log trades so AI can learn your patterns.</div></div>`;return}
+  el.innerHTML=[...journal].reverse().map(t=>`
+    <div class="tentry">
+      <div>
+        <div class="tsym" style="color:${t.res==='WIN'?'#00f5c4':t.res==='LOSS'?'#ff4466':'#ffd700'}">${esc(t.sym)} <span style="font-size:9px;color:#3a5570">${t.type}</span></div>
+        <div class="tmeta">${t.date} · E:₹${t.entry} → X:₹${t.exit} · Qty:${t.qty}</div>
+        ${t.notes?`<div style="font-size:9px;color:#1e3848;margin-top:3px">${esc(t.notes.slice(0,55))}${t.notes.length>55?'…':''}</div>`:''}
       </div>
       <div>
-        <div class="trade-pnl ${(t.pnl||0)>=0?'pos':'neg'}">${(t.pnl||0)>=0?'+':'-'}₹${Math.abs(t.pnl||0).toFixed(0)}</div>
-        <div style="font-size:9px;text-align:right;margin-top:3px;color:var(--text2)">${t.result}</div>
+        <div class="tpnl ${(t.pnl||0)>=0?'gn':'rd'}">${(t.pnl||0)>=0?'+':'-'}₹${Math.abs(t.pnl||0).toFixed(0)}</div>
+        <div style="font-size:9px;text-align:right;margin-top:3px;color:#3a5570">${t.res}</div>
       </div>
     </div>`).join('');
 }
 
-function exportJournal(){
-  const blob=new Blob([JSON.stringify(tradeJournal,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`tradesense-journal-${Date.now()}.json`;a.click();
+function exportJournal(){const b=new Blob([JSON.stringify(journal,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`ts-journal-${Date.now()}.json`;a.click()}
+
+// ── SETTINGS ───────────────────────────────────────────
+function saveKey(){
+  const k=document.getElementById('apiInp').value.trim();
+  if(!k){alert('Please enter your Gemini API key');return}
+  localStorage.setItem('ts_key3',k);
+  alert('✅ API Key saved!\n\nYou get 1,500 free calls per day with Gemini Flash.');
 }
 
-// ══════════════════════════════════════════════════════
-// SETTINGS
-// ══════════════════════════════════════════════════════
-function saveApiKey(){const k=document.getElementById('api-key-input').value.trim();if(!k){alert('Please enter your Gemini API key');return;}localStorage.setItem('ts_apikey',k);alert('✅ Gemini API Key saved! You get 1,500 free calls per day.')}
-
-// ══════════════════════════════════════════════════════
-// PWA & SW
-// ══════════════════════════════════════════════════════
+// ── PWA ────────────────────────────────────────────────
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
 </script>
 </body>
