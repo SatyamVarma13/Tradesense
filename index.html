@@ -341,7 +341,7 @@ textarea#msg::placeholder{color:var(--text3)}
     <!-- Input -->
     <div class="input-area">
       <textarea id="msg" rows="1" placeholder="Speak or type market data, chart description…"
-        oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
+        oninput="autoResize(this)"></textarea>
       <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>↑</button>
     </div>
   </div>
@@ -575,15 +575,21 @@ RULES:
 // INIT
 // ══════════════════════════════════════════════════════
 window.addEventListener('load', () => {
+  // Init DOM refs
+  msgEl = document.getElementById('msg');
+  sendBtnEl = document.getElementById('send-btn');
+  messagesEl = document.getElementById('messages');
+
   const savedKey = localStorage.getItem('ts_apikey');
   if (savedKey) document.getElementById('api-key-input').value = savedKey;
 
   addBotMessage(`👋 TradeSense AI v3 is ready!\n\nPowered by Google Gemini — completely FREE (1,500 calls/day).\n\n🔑 First: Go to ⚙️ CONFIG → add your FREE Gemini API key\n🧠 Then: Train me in the BRAIN tab with your strategies\n📡 Then: Come here for live trade calls\n\n⚡ Tap QUICK CALL anytime for instant analysis!`);
   renderKB(); renderJournal(); updateKBCount();
 
-  document.getElementById('msg').addEventListener('input', function(){
-    document.getElementById('send-btn').disabled = (!this.value.trim() && !pendingImageB64) || isLoading;
+  msgEl.addEventListener('input', function(){
+    sendBtnEl.disabled = (!this.value.trim() && !pendingImageB64) || isLoading;
   });
+  msgEl.addEventListener('keydown', handleKey);
 });
 
 // ══════════════════════════════════════════════════════
@@ -608,7 +614,7 @@ async function callAPI(messages) {
   });
 
   const systemPrompt = buildSystemPrompt();
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
 
   const body = {
     system_instruction: {parts:[{text: systemPrompt}]},
@@ -632,9 +638,7 @@ async function callAPI(messages) {
 // ══════════════════════════════════════════════════════
 // CHAT
 // ══════════════════════════════════════════════════════
-const msgEl = document.getElementById('msg');
-const sendBtnEl = document.getElementById('send-btn');
-const messagesEl = document.getElementById('messages');
+let msgEl, sendBtnEl, messagesEl;
 
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px';sendBtnEl.disabled=(!el.value.trim()&&!pendingImageB64)||isLoading}
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
@@ -670,6 +674,7 @@ async function sendMessage() {
   const text = msgEl.value.trim();
   if ((!text && !pendingImageB64) || isLoading) return;
 
+  const apiKey = localStorage.getItem('ts_apikey');
   if (!apiKey) {
     addBotMessage('⚙️ No API key set!\n\nGo to ⚙️ CONFIG tab → paste your FREE Gemini API key → Save.\n\nGet it free at aistudio.google.com — sign in with Google, tap "Get API Key".');
     return;
