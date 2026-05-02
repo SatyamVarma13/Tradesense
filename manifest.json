@@ -1,26 +1,25 @@
 {
-  "name": "TradeSense AI",
+  "name": "TradeSense AI v2",
   "short_name": "TradeSense",
-  "description": "Personal Intraday Trading AI Bot",
+  "description": "Autonomous Intraday Trading AI — NSE/BSE/Crypto",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#080c14",
-  "theme_color": "#080c14",
+  "background_color": "#030507",
+  "theme_color": "#030507",
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23080c14'/%3E%3Crect x='10' y='10' width='172' height='172' rx='32' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2300d4aa'/%3E%3Cstop offset='1' stop-color='%2300a3cc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='96' y='130' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='90' fill='%23080c14'%3ETS%3C/text%3E%3C/svg%3E",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='36' fill='%23030507'/%3E%3Crect x='8' y='8' width='176' height='176' rx='28' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2300f5c4'/%3E%3Cstop offset='1' stop-color='%230094ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='96' y='122' text-anchor='middle' font-family='monospace' font-weight='900' font-size='72' fill='%23030507'%3ETS%3C/text%3E%3C/svg%3E",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%23080c14'/%3E%3Crect x='20' y='20' width='472' height='472' rx='80' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2300d4aa'/%3E%3Cstop offset='1' stop-color='%2300a3cc'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='256' y='340' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='240' fill='%23080c14'%3ETS%3C/text%3E%3C/svg%3E",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23030507'/%3E%3Crect x='20' y='20' width='472' height='472' rx='72' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2300f5c4'/%3E%3Cstop offset='1' stop-color='%230094ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='256' y='330' text-anchor='middle' font-family='monospace' font-weight='900' font-size='200' fill='%23030507'%3ETS%3C/text%3E%3C/svg%3E",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["finance", "productivity"],
-  "screenshots": []
+  "categories": ["finance", "productivity"]
 }
