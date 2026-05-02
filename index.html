@@ -3,342 +3,267 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-<meta name="theme-color" content="#080c14"/>
+<meta name="theme-color" content="#030507"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="TradeSense"/>
-<meta name="description" content="Personal Intraday Trading AI Bot"/>
-<title>TradeSense AI</title>
+<title>TradeSense AI v3</title>
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;700;900&display=swap"/>
 <style>
-  :root {
-    --bg: #080c14;
-    --surface: #0d1420;
-    --surface2: #111827;
-    --accent: #00d4aa;
-    --accent2: #00a3cc;
-    --accent-dim: rgba(0,212,170,0.15);
-    --text: #e2e8f0;
-    --text-muted: #4a5568;
-    --text-dim: #2d3748;
-    --border: rgba(255,255,255,0.07);
-    --border-accent: rgba(0,212,170,0.25);
-    --danger: #ef4444;
-    --warn: #f59e0b;
-    --safe: #00d4aa;
-    --safe-bar: env(safe-area-inset-bottom, 0px);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; overflow: hidden; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    overscroll-behavior: none;
-    -webkit-font-smoothing: antialiased;
-  }
+:root {
+  --bg: #030507;
+  --bg2: #080d12;
+  --bg3: #0d1520;
+  --surface: #111c2a;
+  --surface2: #162234;
+  --accent: #00f5c4;
+  --accent2: #0094ff;
+  --accent3: #ff6b35;
+  --gold: #ffd700;
+  --text: #d4e8ff;
+  --text2: #7a9bb5;
+  --text3: #3a5570;
+  --border: rgba(0,245,196,0.1);
+  --border2: rgba(0,148,255,0.15);
+  --danger: #ff4466;
+  --safe-b: env(safe-area-inset-bottom,0px);
+  --safe-t: env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 
-  #app {
-    display: flex; flex-direction: column;
-    height: 100dvh;
-    position: relative;
-  }
+/* Scanline overlay */
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:1000}
 
-  /* Ambient glow */
-  .ambient {
-    position: fixed; inset: 0; pointer-events: none; z-index: 0;
-    background: radial-gradient(ellipse 80% 35% at 50% -5%, rgba(0,212,170,0.08) 0%, transparent 65%);
-  }
+#app{display:flex;flex-direction:column;height:100dvh;position:relative}
 
-  /* Header */
-  .header {
-    position: relative; z-index: 20;
-    padding: 14px 16px 10px;
-    padding-top: calc(14px + env(safe-area-inset-top, 0px));
-    background: rgba(8,12,20,0.97);
-    border-bottom: 1px solid var(--border-accent);
-    display: flex; align-items: center; justify-content: space-between;
-    backdrop-filter: blur(20px);
-    flex-shrink: 0;
-  }
-  .header-left { display: flex; align-items: center; gap: 10px; }
-  .logo {
-    width: 34px; height: 34px; border-radius: 9px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Syne', sans-serif;
-    font-size: 16px; font-weight: 800; color: var(--bg);
-    flex-shrink: 0;
-  }
-  .brand-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 15px; font-weight: 800;
-    color: var(--accent); letter-spacing: 0.06em;
-  }
-  .brand-sub { font-size: 9px; color: var(--text-muted); letter-spacing: 0.12em; margin-top: 1px; }
-  .live-badge {
-    display: flex; align-items: center; gap: 6px;
-    padding: 5px 10px; border-radius: 20px;
-    background: rgba(0,212,170,0.08);
-    border: 1px solid rgba(0,212,170,0.2);
-  }
-  .live-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--accent); box-shadow: 0 0 8px var(--accent);
-    animation: blink 2s ease-in-out infinite;
-  }
-  .live-text { font-size: 10px; color: var(--accent); letter-spacing: 0.1em; }
+/* Ambient */
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 30% at 20% 0%,rgba(0,245,196,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 25% at 80% 100%,rgba(0,148,255,0.05) 0%,transparent 60%)}
 
-  /* Tab bar */
-  .tabs {
-    display: flex; background: var(--surface); border-bottom: 1px solid var(--border);
-    position: relative; z-index: 15; flex-shrink: 0;
-  }
-  .tab {
-    flex: 1; padding: 11px 8px; border: none;
-    background: transparent; color: var(--text-muted);
-    font-family: 'Space Mono', monospace;
-    font-size: 10px; cursor: pointer; letter-spacing: 0.04em;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px;
-  }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .kb-count {
-    background: var(--accent); color: var(--bg);
-    font-size: 9px; font-weight: 700;
-    padding: 1px 5px; border-radius: 10px; min-width: 16px; text-align: center;
-  }
+/* ── Header ── */
+.header{position:relative;z-index:20;padding:12px 16px;padding-top:calc(12px + var(--safe-t));
+  background:rgba(3,5,7,0.95);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(20px);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:10px}
+.logo{width:36px;height:36px;border-radius:10px;position:relative;flex-shrink:0;
+  background:linear-gradient(135deg,#00f5c4,#0094ff);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Orbitron',monospace;font-size:12px;font-weight:900;color:#030507}
+.logo::after{content:'';position:absolute;inset:-1px;border-radius:11px;
+  background:linear-gradient(135deg,#00f5c4,#0094ff);z-index:-1;filter:blur(6px);opacity:0.5}
+.brand{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:0.08em}
+.brand-v{font-size:9px;color:var(--accent2);letter-spacing:0.05em;margin-top:2px}
+.status-row{display:flex;align-items:center;gap:8px}
+.status-pill{display:flex;align-items:center;gap:5px;padding:5px 9px;border-radius:20px;
+  background:rgba(0,245,196,0.07);border:1px solid rgba(0,245,196,0.2)}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);animation:pulse 2s infinite}
+.status-text{font-size:9px;color:var(--accent);letter-spacing:0.12em}
 
-  /* Chat area */
-  #chat-tab { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-  .messages {
-    flex: 1; overflow-y: auto; padding: 14px 14px 8px;
-    display: flex; flex-direction: column; gap: 12px;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-  }
+/* ── Tabs ── */
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);
+  position:relative;z-index:15;flex-shrink:0;overflow-x:auto}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;min-width:70px;padding:10px 6px;border:none;background:transparent;color:var(--text3);
+  font-family:'JetBrains Mono',monospace;font-size:9px;cursor:pointer;letter-spacing:0.05em;
+  border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;gap:4px}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.badge{background:var(--accent);color:var(--bg);font-size:8px;font-weight:700;
+  padding:1px 5px;border-radius:8px;min-width:14px;text-align:center}
 
-  .msg-row { display: flex; gap: 8px; align-items: flex-end; }
-  .msg-row.user { flex-direction: row-reverse; }
+/* ── Chat ── */
+#tab-chat{display:flex;flex-direction:column;flex:1;min-height:0}
+.messages{flex:1;overflow-y:auto;padding:14px 12px 8px;display:flex;flex-direction:column;gap:10px;
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 
-  .msg-avatar {
-    width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: var(--bg);
-  }
+.msg-row{display:flex;gap:8px;align-items:flex-end;animation:fadeUp 0.2s ease}
+.msg-row.user{flex-direction:row-reverse}
+.avatar{width:28px;height:28px;border-radius:8px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Orbitron',monospace;font-size:9px;font-weight:900;color:var(--bg)}
+.bubble{max-width:84%;padding:10px 13px;font-size:12px;line-height:1.7;
+  white-space:pre-wrap;word-break:break-word;border-radius:14px}
+.msg-row.bot .bubble{background:var(--surface);border:1px solid var(--border);border-bottom-left-radius:3px}
+.msg-row.user .bubble{background:linear-gradient(135deg,rgba(0,245,196,0.15),rgba(0,148,255,0.12));
+  border:1px solid rgba(0,245,196,0.2);border-bottom-right-radius:3px}
 
-  .msg-bubble {
-    max-width: 82%; padding: 11px 13px;
-    font-size: 12.5px; line-height: 1.65; white-space: pre-wrap; word-break: break-word;
-    border-radius: 16px;
-  }
-  .msg-row.bot .msg-bubble {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-bottom-left-radius: 4px;
-  }
-  .msg-row.user .msg-bubble {
-    background: linear-gradient(135deg, rgba(0,212,170,0.18), rgba(0,163,204,0.18));
-    border: 1px solid rgba(0,212,170,0.25);
-    border-bottom-right-radius: 4px;
-    color: var(--text);
-  }
+/* Call highlighting */
+.call-buy{color:#00f5c4;font-weight:700;font-size:14px}
+.call-sell{color:#ff4466;font-weight:700;font-size:14px}
+.call-wait{color:#ffd700;font-weight:700;font-size:14px}
 
-  /* Call card styling within bubbles */
-  .call-buy { color: #00d4aa; font-weight: 700; }
-  .call-sell { color: #ef4444; font-weight: 700; }
-  .call-wait { color: #f59e0b; font-weight: 700; }
+/* Typing */
+.typing-bubble{background:var(--surface);border:1px solid var(--border);border-radius:14px;border-bottom-left-radius:3px;padding:12px 16px;display:flex;gap:5px;align-items:center}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:typing 1.2s infinite}
+.tdot:nth-child(2){animation-delay:0.2s}
+.tdot:nth-child(3){animation-delay:0.4s}
 
-  /* Typing indicator */
-  .typing-bubble {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 16px; border-bottom-left-radius: 4px;
-    padding: 12px 16px; display: flex; gap: 5px; align-items: center;
-  }
-  .typing-dot {
-    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
-    animation: typing 1.2s ease-in-out infinite;
-  }
-  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+/* Image preview in chat */
+.chat-img{max-width:220px;border-radius:10px;border:1px solid var(--border);margin-top:4px;display:block}
 
-  /* Quick chips */
-  .chips {
-    padding: 6px 14px 6px; display: flex; gap: 7px; overflow-x: auto;
-    -webkit-overflow-scrolling: touch; flex-shrink: 0;
-  }
-  .chips::-webkit-scrollbar { display: none; }
-  .chip {
-    white-space: nowrap; padding: 7px 12px; border-radius: 20px;
-    border: 1px solid rgba(0,212,170,0.2);
-    background: rgba(0,212,170,0.05); color: #4a9a8a;
-    font-size: 10.5px; cursor: pointer; font-family: inherit;
-    flex-shrink: 0; transition: all 0.15s;
-  }
-  .chip:active { background: rgba(0,212,170,0.15); transform: scale(0.97); }
+/* ── Toolbar ── */
+.toolbar{display:flex;gap:6px;padding:8px 12px 4px;flex-shrink:0;overflow-x:auto}
+.toolbar::-webkit-scrollbar{display:none}
+.tool-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 10px;
+  border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:var(--surface);
+  color:var(--text2);font-family:inherit;font-size:9px;cursor:pointer;white-space:nowrap;
+  flex-shrink:0;transition:all 0.15s;letter-spacing:0.03em}
+.tool-btn:active{transform:scale(0.94);background:var(--surface2)}
+.tool-btn.active-voice{border-color:var(--danger);background:rgba(255,68,102,0.1);color:var(--danger)}
+.tool-icon{font-size:16px;line-height:1}
 
-  /* Input area */
-  .input-area {
-    padding: 10px 12px;
-    padding-bottom: calc(10px + var(--safe-bar));
-    border-top: 1px solid var(--border);
-    background: rgba(8,12,20,0.97);
-    display: flex; gap: 8px; align-items: flex-end;
-    flex-shrink: 0;
-  }
-  .input-wrap { flex: 1; position: relative; }
-  textarea {
-    width: 100%; padding: 11px 14px;
-    background: var(--surface2);
-    border: 1px solid rgba(0,212,170,0.2);
-    border-radius: 14px; color: var(--text);
-    font-size: 13px; font-family: 'Space Mono', monospace;
-    resize: none; outline: none; line-height: 1.5;
-    max-height: 100px; overflow-y: auto;
-    transition: border-color 0.2s;
-  }
-  textarea:focus { border-color: rgba(0,212,170,0.5); }
-  textarea::placeholder { color: var(--text-dim); }
+/* ── Input ── */
+.input-area{padding:8px 10px;padding-bottom:calc(8px + var(--safe-b));
+  border-top:1px solid rgba(255,255,255,0.05);background:rgba(3,5,7,0.97);
+  display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+textarea#msg{flex:1;padding:10px 13px;background:var(--surface);
+  border:1px solid rgba(0,245,196,0.15);border-radius:12px;color:var(--text);
+  font-size:13px;font-family:'JetBrains Mono',monospace;resize:none;outline:none;
+  line-height:1.5;max-height:90px;transition:border-color 0.2s}
+textarea#msg:focus{border-color:rgba(0,245,196,0.4)}
+textarea#msg::placeholder{color:var(--text3)}
+.send-btn{width:42px;height:42px;border-radius:11px;border:none;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:var(--bg);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.send-btn:disabled{background:var(--surface);color:var(--text3)}
+.send-btn:active:not(:disabled){transform:scale(0.92)}
 
-  .send-btn {
-    width: 44px; height: 44px; border-radius: 12px; border: none;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: var(--bg); font-size: 18px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: all 0.15s;
-  }
-  .send-btn:disabled { background: var(--surface2); color: var(--text-dim); }
-  .send-btn:active:not(:disabled) { transform: scale(0.93); }
+/* Image preview before send */
+#img-preview-wrap{padding:6px 12px 0;display:none}
+.img-preview-inner{position:relative;display:inline-block}
+#img-preview{width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid var(--border2);display:block}
+.img-clear{position:absolute;top:-6px;right:-6px;background:var(--danger);border:none;border-radius:50%;
+  width:18px;height:18px;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 
-  /* Knowledge base */
-  #kb-tab {
-    flex: 1; overflow-y: auto; padding: 14px;
-    padding-bottom: calc(14px + var(--safe-bar));
-    -webkit-overflow-scrolling: touch;
-  }
-  .kb-header {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
-  }
-  .kb-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; }
-  .kb-sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
-  .add-btn {
-    padding: 9px 14px; border-radius: 10px; border: none;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: var(--bg); font-weight: 700; font-size: 11px;
-    cursor: pointer; font-family: inherit; flex-shrink: 0;
-    transition: all 0.15s;
-  }
-  .add-btn:active { transform: scale(0.96); }
+/* Voice indicator */
+#voice-wave{display:none;align-items:center;gap:3px;padding:6px 12px}
+.wave-bar{width:3px;background:var(--danger);border-radius:2px;animation:wave 0.8s infinite ease-in-out}
+.wave-bar:nth-child(1){height:8px;animation-delay:0s}
+.wave-bar:nth-child(2){height:16px;animation-delay:0.1s}
+.wave-bar:nth-child(3){height:24px;animation-delay:0.2s}
+.wave-bar:nth-child(4){height:16px;animation-delay:0.3s}
+.wave-bar:nth-child(5){height:8px;animation-delay:0.4s}
+.wave-label{font-size:10px;color:var(--danger);margin-left:6px;letter-spacing:0.05em}
 
-  /* Add form */
-  .add-form {
-    background: var(--surface2); border: 1px solid var(--border-accent);
-    border-radius: 14px; padding: 14px; margin-bottom: 14px;
-  }
-  .form-title { font-size: 11px; color: var(--accent); font-weight: 700; margin-bottom: 12px; letter-spacing: 0.06em; }
-  .form-row { display: flex; gap: 8px; margin-bottom: 10px; }
-  select, .text-input {
-    padding: 10px 12px; background: var(--surface);
-    border: 1px solid var(--border); border-radius: 10px;
-    color: var(--text); font-size: 12px; font-family: 'Space Mono', monospace;
-    outline: none; transition: border-color 0.2s;
-  }
-  select:focus, .text-input:focus { border-color: rgba(0,212,170,0.4); }
-  select { cursor: pointer; }
-  select option { background: var(--surface); }
-  .text-input { flex: 1; }
-  .textarea-kb {
-    width: 100%; padding: 10px 12px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; color: var(--text);
-    font-size: 12px; font-family: 'Space Mono', monospace;
-    resize: vertical; outline: none; line-height: 1.6;
-    min-height: 80px; transition: border-color 0.2s;
-  }
-  .textarea-kb:focus { border-color: rgba(0,212,170,0.4); }
-  .form-actions { display: flex; gap: 8px; margin-top: 10px; }
-  .save-btn {
-    padding: 10px 18px; border-radius: 10px; border: none;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: var(--bg); font-weight: 700; font-size: 11px;
-    cursor: pointer; font-family: inherit; transition: all 0.15s;
-  }
-  .save-btn:active { transform: scale(0.96); }
-  .cancel-btn {
-    padding: 10px 18px; border-radius: 10px;
-    border: 1px solid var(--border); background: transparent;
-    color: var(--text-muted); font-size: 11px;
-    cursor: pointer; font-family: inherit;
-  }
+/* ── Knowledge Base ── */
+#tab-kb{flex:1;overflow-y:auto;padding:14px 12px;padding-bottom:calc(14px + var(--safe-b));display:none;-webkit-overflow-scrolling:touch}
+.kb-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px}
+.kb-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700}
+.kb-actions{display:flex;gap:6px}
+.btn-sm{padding:8px 12px;border-radius:8px;border:none;font-family:inherit;font-size:10px;cursor:pointer;font-weight:700;transition:all 0.15s;letter-spacing:0.03em}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.btn-sm:active{transform:scale(0.95)}
 
-  /* KB entries */
-  .kb-empty {
-    text-align: center; padding: 48px 20px;
-    border: 1px dashed rgba(255,255,255,0.08); border-radius: 14px;
-  }
-  .kb-empty-icon { font-size: 36px; margin-bottom: 10px; }
-  .kb-empty-text { font-size: 12px; color: var(--text-muted); }
-  .kb-empty-sub { font-size: 10px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
+/* Add form */
+.add-form{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:12px;display:none}
+.form-label{font-size:10px;color:var(--accent);letter-spacing:0.08em;margin-bottom:10px;display:block}
+.form-row{display:flex;gap:8px;margin-bottom:10px}
+.f-select,.f-input{padding:9px 11px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
+  border-radius:9px;color:var(--text);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none}
+.f-select{cursor:pointer}
+.f-select option{background:var(--bg3)}
+.f-input{flex:1}
+.f-textarea{width:100%;padding:9px 11px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
+  border-radius:9px;color:var(--text);font-size:11px;font-family:'JetBrains Mono',monospace;
+  resize:vertical;outline:none;line-height:1.6;min-height:80px}
+.form-actions{display:flex;gap:8px;margin-top:10px}
 
-  .kb-entry {
-    border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
-    background: rgba(255,255,255,0.02); position: relative;
-    transition: all 0.2s;
-  }
-  .kb-entry:active { opacity: 0.85; }
-  .kb-entry-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-  .kb-entry-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .kb-tag {
-    font-size: 9px; padding: 3px 7px; border-radius: 5px;
-    font-weight: 700; letter-spacing: 0.06em;
-  }
-  .kb-entry-title { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.3; }
-  .kb-entry-body { font-size: 11px; color: var(--text-muted); margin-top: 7px; line-height: 1.6; }
-  .delete-btn {
-    background: transparent; border: none; color: var(--text-dim);
-    font-size: 18px; cursor: pointer; padding: 2px 4px; flex-shrink: 0;
-    line-height: 1;
-  }
-  .delete-btn:active { color: var(--danger); }
+/* Extract AI button */
+.extract-section{margin-bottom:10px;padding:10px;background:rgba(0,148,255,0.06);border:1px solid rgba(0,148,255,0.15);border-radius:9px}
+.extract-label{font-size:9px;color:var(--accent2);letter-spacing:0.08em;margin-bottom:7px;display:block}
+.extract-input{width:100%;padding:8px 11px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;color:var(--text);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none;margin-bottom:7px}
+.extract-btn{padding:7px 14px;border-radius:8px;border:none;background:var(--accent2);color:#fff;
+  font-size:10px;font-family:inherit;cursor:pointer;font-weight:700}
 
-  /* Install banner */
-  .install-banner {
-    margin: 0 14px 10px; padding: 12px 14px;
-    background: linear-gradient(135deg, rgba(0,212,170,0.12), rgba(0,163,204,0.08));
-    border: 1px solid rgba(0,212,170,0.25); border-radius: 12px;
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  }
-  .install-text { font-size: 11px; line-height: 1.5; color: var(--text); }
-  .install-text strong { color: var(--accent); }
-  .install-btn {
-    padding: 8px 14px; border-radius: 8px; border: none;
-    background: var(--accent); color: var(--bg);
-    font-size: 11px; font-weight: 700; cursor: pointer;
-    font-family: inherit; flex-shrink: 0; white-space: nowrap;
-  }
-  .close-banner { background: none; border: none; color: var(--text-muted); font-size: 16px; cursor: pointer; }
+/* KB entries */
+.kb-entry{border-radius:11px;padding:12px;margin-bottom:9px;background:rgba(255,255,255,0.02);
+  border-left:3px solid var(--accent);border-top:1px solid rgba(255,255,255,0.05)}
+.kb-entry-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.kb-tag{font-size:8px;padding:3px 7px;border-radius:4px;font-weight:700;letter-spacing:0.06em;white-space:nowrap}
+.kb-entry-title{font-size:11px;font-weight:700;color:var(--text);margin-top:4px}
+.kb-entry-body{font-size:10px;color:var(--text2);margin-top:6px;line-height:1.6}
+.del-btn{background:transparent;border:none;color:var(--text3);font-size:17px;cursor:pointer;flex-shrink:0;line-height:1}
+.del-btn:active{color:var(--danger)}
+.kb-empty{text-align:center;padding:44px 16px;border:1px dashed rgba(255,255,255,0.07);border-radius:12px}
+.kb-empty-icon{font-size:34px;margin-bottom:10px}
+.kb-empty-text{font-size:11px;color:var(--text2)}
+.kb-empty-sub{font-size:10px;color:var(--text3);margin-top:6px;line-height:1.5}
 
-  /* Hidden */
-  .hidden { display: none !important; }
+/* ── Trade Journal ── */
+#tab-journal{flex:1;overflow-y:auto;padding:14px 12px;padding-bottom:calc(14px + var(--safe-b));display:none;-webkit-overflow-scrolling:touch}
+.j-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.j-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700}
+.j-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.j-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.j-stat-val{font-family:'Orbitron',monospace;font-size:15px;font-weight:700}
+.j-stat-label{font-size:9px;color:var(--text2);margin-top:3px;letter-spacing:0.05em}
+.j-win{color:#00f5c4}.j-loss{color:#ff4466}.j-neutral{color:var(--gold)}
 
-  /* Animations */
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  @keyframes typing { 0%,100%{opacity:0.3;transform:scale(0.7)} 50%{opacity:1;transform:scale(1)} }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-  .msg-row { animation: fadeUp 0.25s ease; }
+/* Add trade form */
+.trade-form{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:12px;display:none}
+.trade-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.t-field label{font-size:9px;color:var(--text2);letter-spacing:0.06em;display:block;margin-bottom:4px}
+.t-input{width:100%;padding:9px 10px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none}
+.t-select{width:100%;padding:9px 10px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer}
+.t-select option{background:var(--bg3)}
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 3px; height: 3px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(0,212,170,0.2); border-radius: 2px; }
+/* Trade entries */
+.trade-entry{border-radius:10px;padding:11px 13px;margin-bottom:8px;background:var(--surface);
+  border:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;align-items:flex-start}
+.trade-left{flex:1}
+.trade-symbol{font-size:13px;font-weight:700;font-family:'Orbitron',monospace}
+.trade-meta{font-size:10px;color:var(--text2);margin-top:3px}
+.trade-pnl{font-size:15px;font-weight:700;font-family:'Orbitron',monospace;text-align:right}
+.trade-pnl.pos{color:#00f5c4}.trade-pnl.neg{color:#ff4466}
+
+/* ── Settings ── */
+#tab-settings{flex:1;overflow-y:auto;padding:14px 12px;padding-bottom:calc(14px + var(--safe-b));display:none;-webkit-overflow-scrolling:touch}
+.s-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;margin-bottom:14px}
+.s-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+.s-section-title{font-size:10px;color:var(--accent2);letter-spacing:0.08em;margin-bottom:12px}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.s-row:last-child{border-bottom:none;padding-bottom:0}
+.s-row-label{font-size:11px;color:var(--text)}
+.s-row-sub{font-size:9px;color:var(--text2);margin-top:2px}
+.s-input{padding:8px 11px;background:var(--bg3);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;color:var(--text);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none;width:100%;margin-top:8px}
+.api-save-btn{padding:9px 16px;border-radius:8px;border:none;background:var(--accent);color:var(--bg);
+  font-size:11px;font-family:inherit;font-weight:700;cursor:pointer;margin-top:8px;width:100%}
+.export-btn{padding:9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text2);
+  font-size:10px;font-family:inherit;cursor:pointer;flex:1;transition:all 0.15s}
+.export-btn:active{background:var(--surface2)}
+.export-row{display:flex;gap:8px;margin-top:6px}
+.train-info{font-size:10px;color:var(--text2);line-height:1.7;padding:10px;background:rgba(0,245,196,0.04);border-radius:8px;border:1px solid rgba(0,245,196,0.08)}
+.train-info strong{color:var(--accent)}
+
+/* Hidden */
+.hidden{display:none!important}
+
+/* Animations */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes typing{0%,100%{opacity:0.3;transform:scale(0.7)}50%{opacity:1;transform:scale(1)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes wave{0%,100%{transform:scaleY(0.5)}50%{transform:scaleY(1)}}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:2px;height:2px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,245,196,0.2);border-radius:2px}
 </style>
 </head>
 <body>
-
 <div id="app">
   <div class="ambient"></div>
 
@@ -347,295 +272,554 @@
     <div class="header-left">
       <div class="logo">TS</div>
       <div>
-        <div class="brand-name">TRADESENSE AI</div>
-        <div class="brand-sub">INTRADAY BOT</div>
+        <div class="brand">TRADESENSE AI</div>
+        <div class="brand-v">v3.0 · NSE/BSE/CRYPTO · FREE</div>
       </div>
     </div>
-    <div class="live-badge">
-      <div class="live-dot"></div>
-      <span class="live-text">LIVE</span>
+    <div class="status-row">
+      <div class="status-pill">
+        <div class="pulse"></div>
+        <span class="status-text">LIVE</span>
+      </div>
     </div>
   </header>
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab active" id="tab-chat" onclick="switchTab('chat')">
-      📡 CONSOLE
-    </button>
-    <button class="tab" id="tab-kb" onclick="switchTab('kb')">
-      🧠 KNOWLEDGE <span class="kb-count" id="kb-count">0</span>
-    </button>
+    <button class="tab active" id="tab-btn-chat" onclick="switchTab('chat')">📡 CONSOLE</button>
+    <button class="tab" id="tab-btn-kb" onclick="switchTab('kb')">🧠 BRAIN <span class="badge" id="kb-count">0</span></button>
+    <button class="tab" id="tab-btn-journal" onclick="switchTab('journal')">📒 JOURNAL</button>
+    <button class="tab" id="tab-btn-settings" onclick="switchTab('settings')">⚙️ CONFIG</button>
   </div>
 
-  <!-- CHAT TAB -->
-  <div id="chat-tab">
-    <!-- Install banner -->
-    <div class="install-banner" id="install-banner">
-      <div class="install-text"><strong>📲 Install as App</strong><br/>Add to home screen for the best experience</div>
-      <button class="install-btn" id="install-btn" onclick="installApp()">Install</button>
-      <button class="close-banner" onclick="document.getElementById('install-banner').classList.add('hidden')">×</button>
+  <!-- ═══ CHAT TAB ═══ -->
+  <div id="tab-chat" style="display:flex;flex-direction:column;flex:1;min-height:0">
+
+    <div class="messages" id="messages"></div>
+
+    <!-- Voice wave indicator -->
+    <div id="voice-wave">
+      <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+      <div class="wave-bar"></div><div class="wave-bar"></div>
+      <span class="wave-label">LISTENING…</span>
     </div>
 
-    <div class="messages" id="messages">
-      <!-- Welcome message injected by JS -->
+    <!-- Image preview before send -->
+    <div id="img-preview-wrap">
+      <div class="img-preview-inner">
+        <img id="img-preview" src="" alt=""/>
+        <button class="img-clear" onclick="clearImg()">×</button>
+      </div>
     </div>
 
-    <!-- Quick chips -->
-    <div class="chips" id="chips">
-      <button class="chip" onclick="useChip(this)">NIFTY RSI 72, MACD crossover</button>
-      <button class="chip" onclick="useChip(this)">Banknifty below 200 EMA</button>
-      <button class="chip" onclick="useChip(this)">Sideways market strategy?</button>
-      <button class="chip" onclick="useChip(this)">Volume spike 10:30 AM</button>
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button class="tool-btn" id="voice-btn" onclick="toggleVoice()">
+        <span class="tool-icon">🎤</span>VOICE
+      </button>
+      <button class="tool-btn" onclick="triggerCamera()">
+        <span class="tool-icon">📸</span>CHART
+      </button>
+      <button class="tool-btn" onclick="triggerFile()">
+        <span class="tool-icon">📄</span>PDF/IMG
+      </button>
+      <button class="tool-btn" onclick="quickPrompt('Give me the best intraday trade right now for NSE/Crypto based on my strategies')">
+        <span class="tool-icon">⚡</span>QUICK CALL
+      </button>
+      <button class="tool-btn" onclick="quickPrompt('What are the key market levels I should watch today?')">
+        <span class="tool-icon">🎯</span>LEVELS
+      </button>
+      <button class="tool-btn" onclick="quickPrompt('Analyze my recent trades and tell me what I am doing wrong and how to improve')">
+        <span class="tool-icon">🔍</span>REVIEW
+      </button>
     </div>
+
+    <!-- Hidden inputs -->
+    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleImg(this)"/>
+    <input type="file" id="file-input" accept="image/*,.pdf" style="display:none" onchange="handleImg(this)"/>
 
     <!-- Input -->
     <div class="input-area">
-      <div class="input-wrap">
-        <textarea id="msg-input" rows="1" placeholder="Paste live market data, price, indicators…"
-          oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
-      </div>
+      <textarea id="msg" rows="1" placeholder="Speak or type market data, chart description…"
+        oninput="autoResize(this)" onkeydown="handleKey(event)"></textarea>
       <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>↑</button>
     </div>
   </div>
 
-  <!-- KNOWLEDGE BASE TAB -->
-  <div id="kb-tab" class="hidden">
-    <div class="kb-header">
+  <!-- ═══ KNOWLEDGE BASE TAB ═══ -->
+  <div id="tab-kb">
+    <div class="kb-topbar">
       <div>
-        <div class="kb-title">Knowledge Base</div>
-        <div class="kb-sub">Feed strategies, indicators & research to your bot</div>
+        <div class="kb-title">🧠 BRAIN</div>
+        <div style="font-size:9px;color:var(--text2);margin-top:3px">Strategies · Indicators · Research · Rules</div>
       </div>
-      <button class="add-btn" onclick="toggleAddForm()">+ Add</button>
+      <div class="kb-actions">
+        <button class="btn-sm btn-ghost" onclick="importKB()">↑ Import</button>
+        <button class="btn-sm btn-primary" onclick="toggleAddForm()">+ Add</button>
+      </div>
     </div>
 
     <!-- Add form -->
-    <div class="add-form hidden" id="add-form">
-      <div class="form-title">NEW KNOWLEDGE ENTRY</div>
+    <div class="add-form" id="add-form">
+      <span class="form-label">NEW KNOWLEDGE ENTRY</span>
+
+      <!-- AI Extract section -->
+      <div class="extract-section">
+        <span class="extract-label">🤖 AI EXTRACT — Paste YouTube transcript, article, or notes below and let AI extract the strategy automatically</span>
+        <textarea class="extract-input" id="extract-raw" rows="3" placeholder="Paste raw transcript, article text, or messy notes here…" style="resize:vertical;line-height:1.5"></textarea>
+        <button class="extract-btn" onclick="aiExtract()">⚡ Extract Strategy with AI</button>
+      </div>
+
       <div class="form-row">
-        <select id="entry-type">
+        <select class="f-select" id="entry-type">
           <option value="strategy">📊 Strategy</option>
           <option value="indicator">📈 Indicator</option>
           <option value="research">🔬 Research</option>
           <option value="video">🎥 Video Notes</option>
           <option value="rule">📋 Rule</option>
+          <option value="pattern">🕯️ Pattern</option>
         </select>
-        <input type="text" class="text-input" id="entry-title" placeholder="Title e.g. ORB Strategy"/>
+        <input type="text" class="f-input" id="entry-title" placeholder="Title e.g. ORB 9:20 Strategy"/>
       </div>
-      <textarea class="textarea-kb" id="entry-content" rows="4"
-        placeholder="Describe strategy rules, entry/exit conditions, best market conditions…"></textarea>
+      <textarea class="f-textarea" id="entry-content" rows="4" placeholder="Strategy rules, entry/exit conditions, indicators used…"></textarea>
       <div class="form-actions">
-        <button class="save-btn" onclick="saveEntry()">Save Entry</button>
-        <button class="cancel-btn" onclick="toggleAddForm()">Cancel</button>
+        <button class="btn-sm btn-primary" onclick="saveEntry()">Save</button>
+        <button class="btn-sm btn-ghost" onclick="toggleAddForm()">Cancel</button>
       </div>
     </div>
 
-    <!-- Entries list -->
     <div id="kb-list"></div>
   </div>
-</div>
+
+  <!-- ═══ JOURNAL TAB ═══ -->
+  <div id="tab-journal">
+    <div class="j-topbar">
+      <div class="j-title">📒 TRADE JOURNAL</div>
+      <button class="btn-sm btn-primary" onclick="toggleTradeForm()">+ Log Trade</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="j-stats">
+      <div class="j-stat"><div class="j-stat-val j-win" id="stat-wins">0</div><div class="j-stat-label">WINS</div></div>
+      <div class="j-stat"><div class="j-stat-val j-loss" id="stat-losses">0</div><div class="j-stat-label">LOSSES</div></div>
+      <div class="j-stat"><div class="j-stat-val j-neutral" id="stat-pnl">₹0</div><div class="j-stat-label">TOTAL P&L</div></div>
+    </div>
+
+    <!-- Add trade form -->
+    <div class="trade-form" id="trade-form">
+      <span class="form-label">LOG TRADE</span>
+      <div class="trade-grid">
+        <div class="t-field"><label>SYMBOL</label><input type="text" class="t-input" id="t-symbol" placeholder="NIFTY / BTC"/></div>
+        <div class="t-field"><label>TYPE</label>
+          <select class="t-select" id="t-type"><option value="BUY">BUY (LONG)</option><option value="SELL">SELL (SHORT)</option></select>
+        </div>
+        <div class="t-field"><label>ENTRY ₹</label><input type="number" class="t-input" id="t-entry" placeholder="0.00"/></div>
+        <div class="t-field"><label>EXIT ₹</label><input type="number" class="t-input" id="t-exit" placeholder="0.00"/></div>
+        <div class="t-field"><label>QTY / LOTS</label><input type="number" class="t-input" id="t-qty" placeholder="1"/></div>
+        <div class="t-field"><label>RESULT</label>
+          <select class="t-select" id="t-result"><option value="WIN">WIN ✅</option><option value="LOSS">LOSS ❌</option><option value="BE">BREAKEVEN</option></select>
+        </div>
+      </div>
+      <div class="t-field" style="margin-bottom:10px"><label>NOTES / WHAT HAPPENED</label>
+        <textarea class="t-input" id="t-notes" rows="2" placeholder="Why did you enter? What went right/wrong?" style="resize:vertical;line-height:1.5;width:100%"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-sm btn-primary" onclick="saveTrade()">Save Trade</button>
+        <button class="btn-sm btn-ghost" onclick="toggleTradeForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div id="trade-list"></div>
+  </div>
+
+  <!-- ═══ SETTINGS TAB ═══ -->
+  <div id="tab-settings">
+    <div class="s-title">⚙️ CONFIG</div>
+
+    <!-- API Key -->
+    <div class="s-section">
+      <div class="s-section-title">GEMINI API (FREE)</div>
+      <div class="s-row" style="flex-direction:column;align-items:flex-start">
+        <div class="s-row-label">Google Gemini API Key</div>
+        <div class="s-row-sub">✅ FREE — 1,500 calls/day · Get at aistudio.google.com</div>
+        <input type="password" class="s-input" id="api-key-input" placeholder="AIzaSy…" value=""/>
+        <button class="api-save-btn" onclick="saveApiKey()">Save API Key</button>
+      </div>
+      <div style="margin-top:12px;padding:10px;background:rgba(0,245,196,0.04);border:1px solid rgba(0,245,196,0.1);border-radius:8px">
+        <div style="font-size:10px;color:var(--accent);font-weight:700;margin-bottom:6px">HOW TO GET FREE KEY:</div>
+        <div style="font-size:10px;color:var(--text2);line-height:1.8">
+          1. Open <strong style="color:var(--text)">aistudio.google.com</strong><br/>
+          2. Sign in with Google account<br/>
+          3. Tap <strong style="color:var(--text)">Get API Key</strong> → Create API key<br/>
+          4. Copy & paste it above → Save
+        </div>
+      </div>
+    </div>
+
+    <!-- Data management -->
+    <div class="s-section">
+      <div class="s-section-title">DATA MANAGEMENT</div>
+      <div class="export-row">
+        <button class="export-btn" onclick="exportKB()">⬇ Export Knowledge</button>
+        <button class="export-btn" onclick="exportJournal()">⬇ Export Journal</button>
+      </div>
+      <div class="export-row" style="margin-top:6px">
+        <button class="export-btn" onclick="importKB()" style="flex:1">⬆ Import Knowledge</button>
+      </div>
+    </div>
+
+    <!-- How to train -->
+    <div class="s-section">
+      <div class="s-section-title">HOW TO TRAIN YOUR BOT</div>
+      <div class="train-info">
+<strong>1. 📊 Add Strategies manually</strong>
+Go to 🧠 BRAIN tab → + Add → describe your strategy with entry rules, SL, target logic.
+
+<strong>2. 🎥 YouTube / Article Extract</strong>
+Copy transcript or article text → paste in the AI Extract box → AI pulls out the strategy for you automatically.
+
+<strong>3. 📸 Chart Analysis</strong>
+On Console tab tap 📸 CHART → point camera at your chart → AI reads the pattern and analyzes it.
+
+<strong>4. 📒 Trade Journal</strong>
+Log every trade (win or loss). AI reads your journal and learns your weak points to improve future calls.
+
+<strong>5. 🎤 Voice Training</strong>
+Tap MIC → speak your strategy in plain language → AI understands and uses it.
+
+<strong>6. ⚡ Quick Call</strong>
+Tap QUICK CALL anytime during market hours for an instant recommendation using all your strategies.
+      </div>
+    </div>
+  </div>
+
+</div><!-- #app -->
 
 <script>
-// ─── State ───────────────────────────────────────────────────────────────────
-let knowledgeBase = JSON.parse(localStorage.getItem('ts_kb') || '[]');
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let knowledgeBase = JSON.parse(localStorage.getItem('ts_kb2')||'[]');
+let tradeJournal = JSON.parse(localStorage.getItem('ts_journal')||'[]');
 let chatHistory = [];
 let isLoading = false;
-let deferredPrompt = null;
+let pendingImageB64 = null;
+let recognition = null;
+let isListening = false;
 
-const TYPE_COLORS = {
-  strategy: '#00d4aa', indicator: '#f59e0b',
-  research: '#6366f1', video: '#ef4444', rule: '#ec4899'
-};
-const TYPE_ICONS = {
-  strategy:'📊', indicator:'📈', research:'🔬', video:'🎥', rule:'📋'
-};
+const COLORS = {strategy:'#00f5c4',indicator:'#ffd700',research:'#6366f1',video:'#ff6b35',rule:'#00a3cc',pattern:'#ff4466'};
+const ICONS = {strategy:'📊',indicator:'📈',research:'🔬',video:'🎥',rule:'📋',pattern:'🕯️'};
 
-const SYSTEM_PROMPT = `You are an elite intraday trading analyst and personal trading bot. Your goal: help the user make safe, profitable intraday trades.
+// ══════════════════════════════════════════════════════
+// SYSTEM PROMPT
+// ══════════════════════════════════════════════════════
+function buildSystemPrompt() {
+  const kbContext = knowledgeBase.length
+    ? knowledgeBase.map((e,i)=>`[${i+1}] ${e.type.toUpperCase()} — ${e.title}:\n${e.content}`).join('\n\n')
+    : 'No knowledge base yet — use general best practices.';
 
-You use the Knowledge Base (strategies, indicators, research) provided below for every analysis.
+  const journalContext = tradeJournal.length
+    ? tradeJournal.slice(-20).map(t=>`${t.symbol} ${t.type} Entry:${t.entry} Exit:${t.exit} Qty:${t.qty} → ${t.result} | ${t.notes||''}`).join('\n')
+    : 'No trade history yet.';
 
-When user shares market data (price, volume, indicators, chart patterns, time), respond with:
+  const wins = tradeJournal.filter(t=>t.result==='WIN').length;
+  const losses = tradeJournal.filter(t=>t.result==='LOSS').length;
+  const winRate = tradeJournal.length ? Math.round(wins/tradeJournal.length*100) : 0;
 
-🎯 CALL: [BUY / SELL / WAIT / EXIT]
-📌 Symbol: [if mentioned]
-💰 Entry Zone: [price range]
-🛑 Stop Loss: [price]
-🎯 Target 1: [price]
-🎯 Target 2: [price]
-📊 R:R Ratio: [e.g. 1:2.5]
+  return `You are TradeSense AI — an elite autonomous intraday trading analyst for Indian markets (NSE/BSE F&O, Equity) and Crypto. You think and reason like a top professional trader with 20 years experience. You are the user's personal trading brain.
+
+CAPABILITIES:
+- Analyze charts, candlestick patterns, indicators from images
+- Give precise BUY/SELL/WAIT/EXIT calls with entry, SL, targets
+- Search web for live news and market context when needed
+- Learn from the user's trade journal to improve recommendations
+- Identify the user's weaknesses and help them improve
+
+USER PROFILE:
+- Win Rate: ${winRate}% (${wins} wins, ${losses} losses from ${tradeJournal.length} trades)
+- Markets: NSE/BSE F&O + Crypto
+
+KNOWLEDGE BASE (User's Strategies & Research):
+${kbContext}
+
+RECENT TRADE JOURNAL (Last 20 trades):
+${journalContext}
+
+TRADE CALL FORMAT (always use this when giving a call):
+━━━━━━━━━━━━━━━━━━━━
+🎯 CALL: [BUY/SELL/WAIT/EXIT]
+📌 Symbol: [name]
+⏰ Timeframe: [e.g. 15min, 1hr]
+💰 Entry Zone: ₹[price range]
+🛑 Stop Loss: ₹[price] ([points] pts)
+🎯 Target 1: ₹[price] ([points] pts)
+🎯 Target 2: ₹[price] ([points] pts)
+📊 R:R Ratio: 1:[ratio]
 🔒 Confidence: [%]
-📝 Reasoning: [use knowledge base strategies]
-⚠️ Risk Note: [warnings / caveats]
+📋 Strategy Used: [from knowledge base]
+📝 Reasoning: [detailed multi-factor reasoning]
+⚠️ Risk Note: [warnings, market conditions to watch]
+━━━━━━━━━━━━━━━━━━━━
 
-Rules:
-- Capital preservation > profits. If unclear, say WAIT.
-- Never suggest trade with R:R < 1:1.5
-- Consider time of day (avoid 9:15-9:30 opening chaos, 3:00+ PM danger zone)
-- Always match strategy from knowledge base to current conditions`;
+RULES:
+- Capital preservation is PARAMOUNT. Never suggest trade with R:R < 1:1.5
+- Avoid first 15 minutes (9:15-9:30 IST) unless breakout is very strong
+- Warn about 3:00 PM+ exit risk
+- Always mention which of the user's strategies you're applying
+- If chart image is provided, read it carefully before giving call
+- If market conditions are unclear → WAIT
+- Consider user's historical patterns from journal to personalize advice`;
+}
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
 window.addEventListener('load', () => {
-  addBotMessage(`👋 Welcome to TradeSense AI!\n\nTo get started:\n1. Go to 🧠 KNOWLEDGE tab — add your strategies & research\n2. Come back here — paste live market data\n3. Get your trading call with entry, SL & targets\n\n📌 Tip: The more you train me, the smarter my calls become.`);
-  renderKB();
-  updateKBCount();
-  msgInput.addEventListener('input', () => {
-    sendBtn.disabled = !msgInput.value.trim() || isLoading;
+  const savedKey = localStorage.getItem('ts_apikey');
+  if (savedKey) document.getElementById('api-key-input').value = savedKey;
+
+  addBotMessage(`👋 TradeSense AI v3 is ready!\n\nPowered by Google Gemini — completely FREE (1,500 calls/day).\n\n🔑 First: Go to ⚙️ CONFIG → add your FREE Gemini API key\n🧠 Then: Train me in the BRAIN tab with your strategies\n📡 Then: Come here for live trade calls\n\n⚡ Tap QUICK CALL anytime for instant analysis!`);
+  renderKB(); renderJournal(); updateKBCount();
+
+  document.getElementById('msg').addEventListener('input', function(){
+    document.getElementById('send-btn').disabled = (!this.value.trim() && !pendingImageB64) || isLoading;
   });
 });
 
-// PWA install
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('install-banner').classList.remove('hidden');
-});
-window.addEventListener('appinstalled', () => {
-  document.getElementById('install-banner').classList.add('hidden');
-});
+// ══════════════════════════════════════════════════════
+// API CALL — Google Gemini (FREE)
+// ══════════════════════════════════════════════════════
+async function callAPI(messages) {
+  const apiKey = localStorage.getItem('ts_apikey');
+  if (!apiKey) throw new Error('No API key. Go to ⚙️ CONFIG and add your Gemini API key.');
 
-// Hide install banner if already standalone
-if (window.matchMedia('(display-mode: standalone)').matches) {
-  document.getElementById('install-banner').classList.add('hidden');
-}
-
-async function installApp() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    if (outcome === 'accepted') {
-      document.getElementById('install-banner').classList.add('hidden');
+  // Convert chat history to Gemini format
+  const geminiContents = messages.map(m => {
+    if (typeof m.content === 'string') {
+      return {role: m.role === 'assistant' ? 'model' : 'user', parts:[{text: m.content}]};
     }
-  } else {
-    // Fallback instructions
-    addBotMessage('📲 To install:\n1. Tap the Chrome menu (⋮ three dots, top right)\n2. Tap "Add to Home screen"\n3. Tap "Add"\n\nThe app will appear on your home screen like a native app!');
-    document.getElementById('install-banner').classList.add('hidden');
-  }
+    // Handle image messages
+    const parts = m.content.map(c => {
+      if (c.type === 'text') return {text: c.text};
+      if (c.type === 'image') return {inlineData:{mimeType: c.source.media_type, data: c.source.data}};
+      return null;
+    }).filter(Boolean);
+    return {role: 'user', parts};
+  });
+
+  const systemPrompt = buildSystemPrompt();
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+  const body = {
+    system_instruction: {parts:[{text: systemPrompt}]},
+    contents: geminiContents,
+    generationConfig: {maxOutputTokens: 1200, temperature: 0.4}
+  };
+
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+
+  if (data.error) throw new Error(data.error.message);
+
+  const text = data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('\n') || 'No response received.';
+  return text;
 }
 
-// ─── Chat ─────────────────────────────────────────────────────────────────────
-const msgInput = document.getElementById('msg-input');
-const sendBtn = document.getElementById('send-btn');
+// ══════════════════════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════════════════════
+const msgEl = document.getElementById('msg');
+const sendBtnEl = document.getElementById('send-btn');
 const messagesEl = document.getElementById('messages');
 
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-  sendBtn.disabled = !el.value.trim() || isLoading;
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px';sendBtnEl.disabled=(!el.value.trim()&&!pendingImageB64)||isLoading}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
+function quickPrompt(text){msgEl.value=text;autoResize(msgEl);sendMessage()}
+
+function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function formatMsg(t){
+  return escHtml(t)
+    .replace(/🎯 CALL: (BUY)/g,'🎯 CALL: <span class="call-buy">$1</span>')
+    .replace(/🎯 CALL: (SELL)/g,'🎯 CALL: <span class="call-sell">$1</span>')
+    .replace(/🎯 CALL: (WAIT|EXIT)/g,'🎯 CALL: <span class="call-wait">$1</span>');
 }
 
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-}
-
-function useChip(btn) { msgInput.value = btn.textContent; autoResize(msgInput); msgInput.focus(); }
-
-function addBotMessage(text) {
+function addBotMessage(text, imgSrc) {
   const row = document.createElement('div');
   row.className = 'msg-row bot';
-  row.innerHTML = `
-    <div class="msg-avatar">TS</div>
-    <div class="msg-bubble">${formatMsg(text)}</div>`;
+  row.innerHTML = `<div class="avatar">TS</div><div class="bubble">${formatMsg(text)}${imgSrc?`<img src="${imgSrc}" class="chat-img"/>`:''}</div>`;
   messagesEl.appendChild(row);
   scrollBottom();
 }
-
-function addUserMessage(text) {
+function addUserMessage(text, imgSrc) {
   const row = document.createElement('div');
   row.className = 'msg-row user';
-  row.innerHTML = `<div class="msg-bubble">${escHtml(text)}</div>`;
+  row.innerHTML = `<div class="bubble">${escHtml(text)}${imgSrc?`<img src="${imgSrc}" class="chat-img"/>`:''}</div>`;
   messagesEl.appendChild(row);
   scrollBottom();
 }
-
-function showTyping() {
-  const el = document.createElement('div');
-  el.className = 'msg-row bot'; el.id = 'typing';
-  el.innerHTML = `<div class="msg-avatar">TS</div>
-    <div class="typing-bubble">
-      <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
-    </div>`;
-  messagesEl.appendChild(el);
-  scrollBottom();
-}
-function hideTyping() { document.getElementById('typing')?.remove(); }
-
-function scrollBottom() {
-  setTimeout(() => messagesEl.scrollTop = messagesEl.scrollHeight, 60);
-}
-
-function formatMsg(text) {
-  return escHtml(text)
-    .replace(/🎯 CALL: (BUY)/g, '🎯 CALL: <span class="call-buy">$1</span>')
-    .replace(/🎯 CALL: (SELL)/g, '🎯 CALL: <span class="call-sell">$1</span>')
-    .replace(/🎯 CALL: (WAIT|EXIT)/g, '🎯 CALL: <span class="call-wait">$1</span>');
-}
-
-function escHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function buildKBContext() {
-  if (!knowledgeBase.length) return 'No knowledge base entries yet.';
-  return knowledgeBase.map((e,i) =>
-    `[${i+1}] ${e.type.toUpperCase()} — ${e.title}:\n${e.content}`
-  ).join('\n\n');
-}
+function showTyping(){const el=document.createElement('div');el.className='msg-row bot';el.id='typing';el.innerHTML=`<div class="avatar">TS</div><div class="typing-bubble"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;messagesEl.appendChild(el);scrollBottom()}
+function hideTyping(){document.getElementById('typing')?.remove()}
+function scrollBottom(){setTimeout(()=>messagesEl.scrollTop=messagesEl.scrollHeight,60)}
 
 async function sendMessage() {
-  const text = msgInput.value.trim();
-  if (!text || isLoading) return;
+  const text = msgEl.value.trim();
+  if ((!text && !pendingImageB64) || isLoading) return;
 
-  addUserMessage(text);
-  chatHistory.push({ role: 'user', content: text });
-  msgInput.value = ''; msgInput.style.height = 'auto';
-  sendBtn.disabled = true; isLoading = true;
+  if (!apiKey) {
+    addBotMessage('⚙️ No API key set!\n\nGo to ⚙️ CONFIG tab → paste your FREE Gemini API key → Save.\n\nGet it free at aistudio.google.com — sign in with Google, tap "Get API Key".');
+    return;
+  }
+
+  // Build user message content
+  let userContent;
+  if (pendingImageB64) {
+    userContent = [
+      {type:'image',source:{type:'base64',media_type:pendingImageB64.type,data:pendingImageB64.data}},
+      {type:'text',text: text || 'Analyze this chart and give me a trade call based on my strategies.'}
+    ];
+  } else {
+    userContent = text;
+  }
+
+  addUserMessage(text || '📸 [Chart image sent]', pendingImageB64?.preview);
+  const historyMsg = {role:'user', content: userContent};
+  chatHistory.push(historyMsg);
+
+  clearImg();
+  msgEl.value = ''; msgEl.style.height = 'auto';
+  sendBtnEl.disabled = true; isLoading = true;
   showTyping();
 
   try {
-    const systemFull = SYSTEM_PROMPT + '\n\n--- KNOWLEDGE BASE ---\n' + buildKBContext() + '\n--- END ---';
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: systemFull,
-        messages: chatHistory
-      })
-    });
-    const data = await res.json();
-    const reply = data.content?.[0]?.text || 'Sorry, could not process. Try again.';
-    chatHistory.push({ role: 'assistant', content: reply });
+    const reply = await callAPI(chatHistory);
+    chatHistory.push({role:'assistant', content: reply});
     hideTyping();
     addBotMessage(reply);
   } catch(err) {
     hideTyping();
-    addBotMessage('⚠️ Network error. Check connection and try again.');
+    addBotMessage(`⚠️ Error: ${err.message}\n\nCheck your API key in ⚙️ CONFIG tab.`);
   }
 
   isLoading = false;
-  sendBtn.disabled = !msgInput.value.trim();
+  sendBtnEl.disabled = !msgEl.value.trim();
 }
 
-// ─── Tabs ─────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// VOICE
+// ══════════════════════════════════════════════════════
+function toggleVoice() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    addBotMessage('⚠️ Voice not supported in this browser. Use Chrome on Android for voice input.');
+    return;
+  }
+  if (isListening) { stopVoice(); return; }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'en-IN';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = () => {
+    isListening = true;
+    document.getElementById('voice-btn').classList.add('active-voice');
+    document.getElementById('voice-wave').style.display = 'flex';
+  };
+  recognition.onresult = e => {
+    const transcript = e.results[0][0].transcript;
+    msgEl.value = transcript;
+    autoResize(msgEl);
+    stopVoice();
+    setTimeout(sendMessage, 300);
+  };
+  recognition.onerror = () => stopVoice();
+  recognition.onend = () => stopVoice();
+  recognition.start();
+}
+
+function stopVoice() {
+  isListening = false;
+  recognition?.stop();
+  document.getElementById('voice-btn').classList.remove('active-voice');
+  document.getElementById('voice-wave').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════
+// IMAGE / CHART
+// ══════════════════════════════════════════════════════
+function triggerCamera(){document.getElementById('camera-input').click()}
+function triggerFile(){document.getElementById('file-input').click()}
+
+function handleImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.type === 'application/pdf') { handlePDF(file); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const full = e.target.result;
+    const data = full.split(',')[1];
+    pendingImageB64 = {data, type: file.type, preview: full};
+    document.getElementById('img-preview').src = full;
+    document.getElementById('img-preview-wrap').style.display = 'block';
+    sendBtnEl.disabled = false;
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function clearImg() {
+  pendingImageB64 = null;
+  document.getElementById('img-preview-wrap').style.display = 'none';
+  document.getElementById('img-preview').src = '';
+}
+
+function handlePDF(file) {
+  addBotMessage('📄 PDF detected. Please copy-paste the text content from your PDF into the BRAIN tab → AI Extract box. I\'ll extract the strategies automatically!');
+}
+
+// ══════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════
 function switchTab(tab) {
-  const isChat = tab === 'chat';
-  document.getElementById('chat-tab').classList.toggle('hidden', !isChat);
-  document.getElementById('kb-tab').classList.toggle('hidden', isChat);
-  document.getElementById('tab-chat').classList.toggle('active', isChat);
-  document.getElementById('tab-kb').classList.toggle('active', !isChat);
-  // fix flex layout for chat
-  document.getElementById('chat-tab').style.display = isChat ? 'flex' : 'none';
-  document.getElementById('kb-tab').style.display = isChat ? 'none' : 'block';
+  ['chat','kb','journal','settings'].forEach(t => {
+    const el = document.getElementById(`tab-${t}`);
+    const btn = document.getElementById(`tab-btn-${t}`);
+    const isActive = t === tab;
+    el.style.display = isActive ? (t==='chat'?'flex':'block') : 'none';
+    btn.classList.toggle('active', isActive);
+  });
 }
 
-// ─── Knowledge Base ───────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// KNOWLEDGE BASE
+// ══════════════════════════════════════════════════════
 let addFormOpen = false;
+function toggleAddForm(){addFormOpen=!addFormOpen;document.getElementById('add-form').style.display=addFormOpen?'block':'none';if(addFormOpen)document.getElementById('entry-title').focus()}
 
-function toggleAddForm() {
-  addFormOpen = !addFormOpen;
-  document.getElementById('add-form').classList.toggle('hidden', !addFormOpen);
-  if (addFormOpen) document.getElementById('entry-title').focus();
+async function aiExtract() {
+  const raw = document.getElementById('extract-raw').value.trim();
+  if (!raw) return;
+  const apiKey = localStorage.getItem('ts_apikey');
+  if (!apiKey) { alert('Add API key in ⚙️ CONFIG first!'); return; }
+
+  const btn = document.querySelector('.extract-btn');
+  btn.textContent = '⏳ Extracting…'; btn.disabled = true;
+
+  try {
+    const reply = await callAPI([{role:'user',content:`Extract the key trading strategy, rules, indicators, and actionable insights from this text. Format it clearly as a concise strategy note a trader can use. Text:\n\n${raw}`}]);
+    document.getElementById('entry-content').value = reply;
+    document.getElementById('entry-title').value = 'Extracted Strategy';
+    document.getElementById('entry-type').value = 'strategy';
+    document.getElementById('extract-raw').value = '';
+  } catch(e) {
+    alert('Extraction failed: ' + e.message);
+  }
+  btn.textContent = '⚡ Extract Strategy with AI'; btn.disabled = false;
 }
 
 function saveEntry() {
@@ -643,64 +827,115 @@ function saveEntry() {
   const content = document.getElementById('entry-content').value.trim();
   const type = document.getElementById('entry-type').value;
   if (!title || !content) return;
-
-  const entry = { id: Date.now(), type, title, content };
-  knowledgeBase.push(entry);
-  localStorage.setItem('ts_kb', JSON.stringify(knowledgeBase));
-
-  document.getElementById('entry-title').value = '';
-  document.getElementById('entry-content').value = '';
-  document.getElementById('entry-type').value = 'strategy';
-  toggleAddForm();
-  renderKB();
-  updateKBCount();
+  knowledgeBase.push({id:Date.now(), type, title, content});
+  localStorage.setItem('ts_kb2', JSON.stringify(knowledgeBase));
+  document.getElementById('entry-title').value='';
+  document.getElementById('entry-content').value='';
+  toggleAddForm(); renderKB(); updateKBCount();
 }
 
-function deleteEntry(id) {
-  if (!confirm('Delete this entry?')) return;
-  knowledgeBase = knowledgeBase.filter(e => e.id !== id);
-  localStorage.setItem('ts_kb', JSON.stringify(knowledgeBase));
-  renderKB();
-  updateKBCount();
-}
-
-function updateKBCount() {
-  document.getElementById('kb-count').textContent = knowledgeBase.length;
-}
+function deleteEntry(id){if(!confirm('Delete?'))return;knowledgeBase=knowledgeBase.filter(e=>e.id!==id);localStorage.setItem('ts_kb2',JSON.stringify(knowledgeBase));renderKB();updateKBCount()}
+function updateKBCount(){document.getElementById('kb-count').textContent=knowledgeBase.length}
 
 function renderKB() {
   const list = document.getElementById('kb-list');
   if (!knowledgeBase.length) {
-    list.innerHTML = `
-      <div class="kb-empty">
-        <div class="kb-empty-icon">🧠</div>
-        <div class="kb-empty-text">No entries yet</div>
-        <div class="kb-empty-sub">Add your trading strategies, indicator rules,<br/>YouTube learnings & research notes.</div>
-      </div>`;
+    list.innerHTML=`<div class="kb-empty"><div class="kb-empty-icon">🧠</div><div class="kb-empty-text">Brain is empty</div><div class="kb-empty-sub">Add strategies, paste YouTube transcripts,<br/>or describe indicators to train your bot.</div></div>`;
     return;
   }
-  list.innerHTML = knowledgeBase.map(e => `
-    <div class="kb-entry" style="border-left: 3px solid ${TYPE_COLORS[e.type]}; border: 1px solid ${TYPE_COLORS[e.type]}22; border-left: 3px solid ${TYPE_COLORS[e.type]};">
-      <div class="kb-entry-header">
-        <div class="kb-entry-meta">
-          <span class="kb-tag" style="background:${TYPE_COLORS[e.type]}22;color:${TYPE_COLORS[e.type]}">${TYPE_ICONS[e.type]} ${e.type.toUpperCase()}</span>
-          <span class="kb-entry-title">${escHtml(e.title)}</span>
+  list.innerHTML = knowledgeBase.map(e=>`
+    <div class="kb-entry" style="border-left-color:${COLORS[e.type]};border-top-color:${COLORS[e.type]}15">
+      <div class="kb-entry-head">
+        <div style="flex:1">
+          <span class="kb-tag" style="background:${COLORS[e.type]}18;color:${COLORS[e.type]}">${ICONS[e.type]} ${e.type.toUpperCase()}</span>
+          <div class="kb-entry-title">${escHtml(e.title)}</div>
         </div>
-        <button class="delete-btn" onclick="deleteEntry(${e.id})">×</button>
+        <button class="del-btn" onclick="deleteEntry(${e.id})">×</button>
       </div>
-      <div class="kb-entry-body">${escHtml(e.content.length > 180 ? e.content.slice(0,180)+'…' : e.content)}</div>
+      <div class="kb-entry-body">${escHtml(e.content.length>160?e.content.slice(0,160)+'…':e.content)}</div>
     </div>`).join('');
 }
 
-// Initial tab setup
-document.getElementById('chat-tab').style.display = 'flex';
-document.getElementById('kb-tab').style.display = 'none';
-
-// Register service worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+function exportKB() {
+  const blob = new Blob([JSON.stringify(knowledgeBase,null,2)],{type:'application/json'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`tradesense-knowledge-${Date.now()}.json`; a.click();
 }
-</script>
 
+function importKB() {
+  const inp = document.createElement('input'); inp.type='file'; inp.accept='.json';
+  inp.onchange = e => {
+    const f=e.target.files[0]; if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{try{const d=JSON.parse(ev.target.result);knowledgeBase=[...knowledgeBase,...d];localStorage.setItem('ts_kb2',JSON.stringify(knowledgeBase));renderKB();updateKBCount();alert(`Imported ${d.length} entries!`)}catch{alert('Invalid file')}};
+    r.readAsText(f);
+  };
+  inp.click();
+}
+
+// ══════════════════════════════════════════════════════
+// JOURNAL
+// ══════════════════════════════════════════════════════
+let tradeFormOpen = false;
+function toggleTradeForm(){tradeFormOpen=!tradeFormOpen;document.getElementById('trade-form').style.display=tradeFormOpen?'block':'none'}
+
+function saveTrade() {
+  const symbol=document.getElementById('t-symbol').value.trim();
+  const entry=parseFloat(document.getElementById('t-entry').value)||0;
+  const exit=parseFloat(document.getElementById('t-exit').value)||0;
+  const qty=parseFloat(document.getElementById('t-qty').value)||1;
+  const type=document.getElementById('t-type').value;
+  const result=document.getElementById('t-result').value;
+  const notes=document.getElementById('t-notes').value.trim();
+  if(!symbol)return;
+
+  const pnl = type==='BUY' ? (exit-entry)*qty : (entry-exit)*qty;
+  tradeJournal.push({id:Date.now(),symbol,type,entry,exit,qty,result,notes,pnl,date:new Date().toLocaleDateString('en-IN')});
+  localStorage.setItem('ts_journal',JSON.stringify(tradeJournal));
+
+  ['t-symbol','t-entry','t-exit','t-qty','t-notes'].forEach(id=>document.getElementById(id).value='');
+  toggleTradeForm(); renderJournal();
+}
+
+function renderJournal() {
+  const wins=tradeJournal.filter(t=>t.result==='WIN').length;
+  const losses=tradeJournal.filter(t=>t.result==='LOSS').length;
+  const totalPnl=tradeJournal.reduce((s,t)=>s+(t.pnl||0),0);
+  document.getElementById('stat-wins').textContent=wins;
+  document.getElementById('stat-losses').textContent=losses;
+  document.getElementById('stat-pnl').textContent=(totalPnl>=0?'₹':'−₹')+Math.abs(totalPnl).toFixed(0);
+
+  const list=document.getElementById('trade-list');
+  if(!tradeJournal.length){list.innerHTML=`<div class="kb-empty"><div class="kb-empty-icon">📒</div><div class="kb-empty-text">No trades logged yet</div><div class="kb-empty-sub">Log your trades here. AI learns from your history<br/>to give better calls and identify your patterns.</div></div>`;return}
+  list.innerHTML=[...tradeJournal].reverse().map(t=>`
+    <div class="trade-entry">
+      <div class="trade-left">
+        <div class="trade-symbol" style="color:${t.result==='WIN'?'#00f5c4':t.result==='LOSS'?'#ff4466':'#ffd700'}">${t.symbol} <span style="font-size:10px;color:var(--text2)">${t.type}</span></div>
+        <div class="trade-meta">${t.date} · Entry ₹${t.entry} → Exit ₹${t.exit} · Qty ${t.qty}</div>
+        ${t.notes?`<div style="font-size:9px;color:var(--text3);margin-top:3px">${escHtml(t.notes.slice(0,60))}${t.notes.length>60?'…':''}</div>`:''}
+      </div>
+      <div>
+        <div class="trade-pnl ${(t.pnl||0)>=0?'pos':'neg'}">${(t.pnl||0)>=0?'+':'-'}₹${Math.abs(t.pnl||0).toFixed(0)}</div>
+        <div style="font-size:9px;text-align:right;margin-top:3px;color:var(--text2)">${t.result}</div>
+      </div>
+    </div>`).join('');
+}
+
+function exportJournal(){
+  const blob=new Blob([JSON.stringify(tradeJournal,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`tradesense-journal-${Date.now()}.json`;a.click();
+}
+
+// ══════════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════════
+function saveApiKey(){const k=document.getElementById('api-key-input').value.trim();if(!k){alert('Please enter your Gemini API key');return;}localStorage.setItem('ts_apikey',k);alert('✅ Gemini API Key saved! You get 1,500 free calls per day.')}
+
+// ══════════════════════════════════════════════════════
+// PWA & SW
+// ══════════════════════════════════════════════════════
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
 </body>
 </html>
